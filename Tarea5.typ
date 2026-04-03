@@ -383,4 +383,9 @@ SELECT * FROM final
 
 == DAG del proyecto
 
-_Pendiente de captura tras ejecutar `dbt docs generate`._
+El DAG (Directed Acyclic Graph) de dbt representa las dependencias entre modelos. Se generó ejecutando `dbt docs generate` y se visualizó con `dbt docs serve`. La captura muestra el linaje del pipeline de GitHub (filtrado con `+int_github_actividad+`): las fuentes crudas `github.branches` y `github.stargazers` fluyen hacia sus respectivos modelos de staging, luego se combinan en `int_github_actividad` y finalmente producen `obt_github_actividad`.
+
+#figure(
+  image("assets/dag_tarea5.png", width: 100%),
+  caption: [DAG del proyecto dbt — linaje del pipeline de GitHub],
+)

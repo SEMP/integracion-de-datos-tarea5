@@ -34,9 +34,9 @@
   - [x] `marts/obt_github_actividad.sql` — tabla única para actividad GitHub (PASS)
 
 ### 6. Captura del DAG
-- [ ] `dbt docs generate` ejecutado
-- [ ] `dbt docs serve` corriendo y DAG visible en el navegador
-- [ ] Screenshot del DAG guardado en `assets/`
+- [x] `dbt docs generate` ejecutado
+- [x] `dbt docs serve` corriendo y DAG visible en el navegador
+- [x] Screenshot del DAG guardado en `assets/dag_tarea5.png` (pipeline GitHub, filtro `+int_github_actividad+`)
 
 ---
 
@@ -64,12 +64,12 @@ mi_proyecto_dbt/
 
 ## Documento de entrega
 
-- [ ] `Tarea5.typ` actualizado con:
-  - [ ] Título y categoría correctos (Tarea 5)
-  - [ ] Descripción del proyecto dbt y configuración
-  - [ ] Código de los modelos staging, intermediate y mart
-  - [ ] Screenshot del DAG embebido
-  - [ ] Explicación de decisiones de diseño (por qué Star Schema, qué hace cada capa)
+- [x] `Tarea5.typ` actualizado con:
+  - [x] Título y categoría correctos (Tarea 5)
+  - [x] Descripción del proyecto dbt y configuración
+  - [x] Código de los modelos staging, intermediate y mart
+  - [x] Screenshot del DAG embebido (`assets/dag_tarea5.png`)
+  - [x] Explicación de decisiones de diseño (OBT, capas staging/intermediate/marts)
 
 ---
 
@@ -84,5 +84,5 @@ mi_proyecto_dbt/
 | Modelos staging       | Listo      |
 | Modelo intermediate   | Listo      |
 | Modelos mart          | Listo      |
-| DAG screenshot        | Pendiente  |
-| Tarea5.typ            | Pendiente  |
+| DAG screenshot        | Listo      |
+| Tarea5.typ            | Listo      |
