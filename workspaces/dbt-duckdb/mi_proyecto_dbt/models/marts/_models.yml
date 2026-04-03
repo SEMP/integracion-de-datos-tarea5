@@ -37,6 +37,10 @@ models:
           - not_null
       - name: prob_precipitacion
         description: "Probabilidad de precipitación (0.0–1.0)."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 1
 
   - name: obt_github_actividad
     description: >

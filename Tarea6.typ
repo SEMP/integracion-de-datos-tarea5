@@ -117,7 +117,43 @@ Nota: la columna `parte_dia` (valores `'d'`/`'n'`) proviene de un struct de Airb
 
 == Tests de dbt-expectations
 
-_Pendiente._
+La librería `dbt-expectations` (ya declarada en `packages.yml` desde la Tarea 5) provee tests estadísticos y de calidad de datos más expresivos que los genéricos. Se definieron 3 tests distribuidos en staging y marts.
+
+=== Recuento de filas en staging
+
+Se verificó que ambas tablas de staging de GitHub tengan al menos una fila, y que el pronóstico weather no supere las 40 filas esperadas de la API (5 días × 8 intervalos de 3 h).
+
+```yaml
+# staging/_models.yml
+
+- name: stg_weather__forecast
+  tests:
+    - dbt_expectations.expect_table_row_count_to_be_between:
+        min_value: 1
+        max_value: 40
+
+- name: stg_github__stargazers
+  tests:
+    - dbt_expectations.expect_table_row_count_to_be_between:
+        min_value: 1
+        max_value: 100
+```
+
+=== Rango de valores en marts
+
+Se verificó que `prob_precipitacion` en `obt_pronostico` siempre esté en el rango válido de la API de OpenWeather (0.0 a 1.0). Esta columna proviene de `pop` (campo directo, no anidado en struct), por lo que su tipo es numérico nativo en MotherDuck.
+
+```yaml
+# marts/_models.yml
+
+- name: obt_pronostico
+  columns:
+    - name: prob_precipitacion
+      tests:
+        - dbt_expectations.expect_column_values_to_be_between:
+            min_value: 0
+            max_value: 1
+```
 
 == Singular tests
 

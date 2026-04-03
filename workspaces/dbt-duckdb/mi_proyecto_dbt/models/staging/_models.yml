@@ -6,6 +6,10 @@ models:
       Limpieza y renombrado de weather.weather. Extrae campos de fecha/hora desde dt_txt,
       fija las coordenadas de Ciudad del Este, y desanida los structs sys, main, wind,
       clouds, rain y el array weather de la API de OpenWeather.
+    tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          min_value: 1
+          max_value: 40
     columns:
       - name: dt_unix
         description: "Timestamp Unix del intervalo de pronóstico. Clave primaria natural."
@@ -37,6 +41,10 @@ models:
     description: >
       Limpieza de github.stargazers. Expone los datos del usuario que dio estrella
       al repositorio SEMP/lib-utilidades y la fecha del evento.
+    tests:
+      - dbt_expectations.expect_table_row_count_to_be_between:
+          min_value: 1
+          max_value: 100
     columns:
       - name: usuario_github_id
         description: "ID numérico del usuario en GitHub. Clave primaria natural."
