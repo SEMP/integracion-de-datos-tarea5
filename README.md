@@ -51,19 +51,25 @@ marts/
 
 ## Tarea 6 — Testing y Documentación con dbt
 
-Extiende el proyecto de la Tarea 5 agregando tests y documentación en el mismo repositorio.
-Todos los tests deben pasar con `dbt build`.
+### Documento de entrega
+
+[`docs/Tarea-Clase6-Integracion-Datos.pdf`](docs/Tarea-Clase6-Integracion-Datos.pdf)
+
+Generado desde [`Tarea6.typ`](Tarea6.typ) (Typst). Incluye tests genéricos, dbt-expectations, singular tests, documentación de modelos y capturas del DAG. `dbt build` PASS=40.
 
 ### Entregables
 
 | Entregable | Ubicación |
 |---|---|
 | `packages.yml` con dbt-expectations | `workspaces/dbt-duckdb/mi_proyecto_dbt/packages.yml` |
-| Tests genéricos (≥5) | archivos `_models.yml` / `_sources.yml` en cada capa |
-| Tests dbt-expectations (≥3) | archivos `_models.yml` en cada capa |
-| Singular tests (≥2) | `workspaces/dbt-duckdb/mi_proyecto_dbt/tests/` |
-| Documentación de modelos y columnas | archivos `_models.yml` en cada capa |
-| DAG con documentación generada | `assets/` (pendiente) |
+| Tests genéricos (28) | `_models.yml` en staging, intermediate y marts |
+| Tests dbt-expectations (3) | `_models.yml` en staging y marts |
+| Singular tests (3) | `workspaces/dbt-duckdb/mi_proyecto_dbt/tests/` |
+| Documentación de modelos y columnas | `_models.yml` en cada capa |
+| DAG — singular test weather (parte_dia) | `assets/dag_weather_test_day_tarea6.png` |
+| DAG — singular test weather (temperatura) | `assets/dag_weather_test_temperature_tarea6.png` |
+| DAG — singular test GitHub (repositorio) | `assets/dag_github_test_repository_tarea6.png` |
+| Resultado `dbt build` | `assets/dbt_build_tarea6.png` |
 
 ### Seguimiento
 
