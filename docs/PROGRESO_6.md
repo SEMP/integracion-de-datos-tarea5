@@ -69,4 +69,4 @@ Todos los tests deben pasar con `dbt build`.
 | Singular tests (≥2) | Listo — 3 tests, PASS=34 total |
 | Documentación modelos/columnas | Listo — descripciones en los 3 `_models.yml` |
 | DAG con docs generado | Listo — 3 capturas en `assets/` |
-| `dbt build` todo en PASS | Pendiente (ejecutar `dbt build` final) |
+| `dbt build` todo en PASS | Listo -- PASS=40 (6 modelos + 34 tests) |

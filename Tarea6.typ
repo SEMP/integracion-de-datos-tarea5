@@ -267,5 +267,14 @@ El DAG actualizado refleja los singular tests como nodos del grafo de linaje, vi
 
 #figure(
   image("assets/dag_github_test_repository_tarea6.png", width: 100%),
-  caption: [DAG — `assert_repositorio_formato_valido` (`+assert_repositorio_formato_valido`)],
+  caption: [DAG -- `assert_repositorio_formato_valido` (`+assert_repositorio_formato_valido`)],
 )
+
+== Resultado final: `dbt build`
+
+`dbt build` ejecuta modelos y tests en orden topológico en un solo comando. Los tests de cada modelo se ejecutan inmediatamente después de que ese modelo es materializado, garantizando que los datos estén validados antes de ser consumidos por capas downstream.
+
+```
+Finished running 2 table models, 34 data tests, 4 view models in 32.29s.
+PASS=40  WARN=0  ERROR=0  SKIP=0  TOTAL=40
+```
