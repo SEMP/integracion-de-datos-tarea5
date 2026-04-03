@@ -11,29 +11,28 @@
 ## Checklist de entregables
 
 ### 1. Proyecto dbt inicializado y configurado
-- [ ] `dbt init` ejecutado con adapter `duckdb` apuntando a `md:airbyte_curso`
-- [ ] `~/.dbt/profiles.yml` configurado con token MotherDuck (`MOTHERDUCK_TOKEN`)
-- [ ] `dbt_project.yml` con nombre de proyecto y rutas de modelos
-- [ ] `dbt debug` exitoso (conexión verificada)
+- [x] Proyecto copiado a `workspaces/dbt-duckdb/mi_proyecto_dbt/` (`.git` interno eliminado)
+- [x] `dbt_project.yml` configurado con nombre `mi_proyecto_dbt` y rutas de modelos
+- [x] `profiles.yml` dentro del proyecto, conectado a `md:airbyte_curso` vía `MOTHERDUCK_TOKEN`
+- [ ] `dbt debug` exitoso (conexión verificada — pendiente de ejecutar)
 
 ### 2. Modelos staging (mínimo 2, uno por source)
 - [ ] `staging/stg_weather__forecast.sql` — limpieza de `weather.weather`
 - [ ] `staging/stg_github__stargazers.sql` — limpieza de `github.stargazers`
-- [ ] `staging/stg_github__branches.sql` — limpieza de `github.branches` _(opcional, ya que se puede incorporar en intermediate)_
+- [ ] `staging/stg_github__branches.sql` — limpieza de `github.branches`
 
 ### 3. Archivo `_sources.yml`
-- [ ] Source `weather` apuntando al schema `weather`, tabla `weather`
+- [ ] Source `weather` apuntando al schema `weather`, tabla `weather` _(actualmente apunta a `raw/main/pokemon`)_
 - [ ] Source `github` apuntando al schema `github`, tablas `branches` y `stargazers`
 
 ### 4. Modelo intermediate (mínimo 1)
-- [ ] `intermediate/int_github_actividad.sql` — join de stargazers + branches enriquecido
+- [ ] `intermediate/int_github_actividad.sql` — join de stargazers + branches enriquecido _(actualmente existe `int_pokemon_with_types.sql`)_
 
 ### 5. Modelo mart (mínimo 1, dimensional u OBT)
-- [ ] Opción elegida según Tarea 4: **Star Schema** (para el dataset principal)
-  - [ ] `marts/fct_pronostico.sql`
-  - [ ] `marts/dim_fecha.sql`
-  - [ ] `marts/dim_condicion.sql`
-  - _O alternativamente un modelo OBT único por simplicidad_
+- [ ] Opción elegida: **OBT** por simplicidad dado el bajo volumen de datos
+  - [ ] `marts/obt_pronostico.sql` — tabla única para análisis del pronóstico weather
+  - [ ] `marts/obt_github_actividad.sql` — tabla única para actividad GitHub
+  - _(los archivos Pokémon existentes serán reemplazados)_
 
 ### 6. Captura del DAG
 - [ ] `dbt docs generate` ejecutado
@@ -77,13 +76,14 @@ mi_proyecto_dbt/
 
 ## Estado general
 
-| Componente          | Estado     |
-|---------------------|------------|
-| Proyecto dbt init   | Pendiente  |
-| profiles.yml        | Pendiente  |
-| _sources.yml        | Pendiente  |
-| Modelos staging     | Pendiente  |
-| Modelo intermediate | Pendiente  |
-| Modelo mart         | Pendiente  |
-| DAG screenshot      | Pendiente  |
-| Tarea5.typ          | Pendiente  |
+| Componente            | Estado     |
+|-----------------------|------------|
+| Proyecto dbt init     | Listo      |
+| profiles.yml          | Listo      |
+| dbt debug             | Pendiente  |
+| _sources.yml          | Pendiente  |
+| Modelos staging       | Pendiente  |
+| Modelo intermediate   | Pendiente  |
+| Modelos mart          | Pendiente  |
+| DAG screenshot        | Pendiente  |
+| Tarea5.typ            | Pendiente  |

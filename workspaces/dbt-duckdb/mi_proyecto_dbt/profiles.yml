@@ -1,0 +1,17 @@
+#mi_proyecto_dbt:
+#  outputs:
+#    dev:
+#      type: duckdb
+#      path: "md:airbyte_curso"
+#      database: airbyte_curso
+#      extensions:
+#        - motherduck
+#      motherduck_token: "{{ env_var('MOTHERDUCK_TOKEN') }}"
+#  target: dev
+
+mi_proyecto_dbt:
+  outputs:
+    dev:
+      type: duckdb
+      path: "md:airbyte_curso?motherduck_token={{env_var('MOTHERDUCK_TOKEN')}}"
+  target: dev
