@@ -21,7 +21,7 @@ Todos los tests deben pasar con `dbt build`.
 - [x] `unique` + `not_null` en PKs surrogate de marts (`pronostico_id`, `estrella_id`)
 - [x] `accepted_values` en `obt_pronostico.pais` -> `['PY']`
 - [x] `not_null` en columnas clave de `obt_pronostico` y `obt_github_actividad`
-- Nota: `accepted_values` sobre `parte_dia` falló por tipo `UNION` en MotherDuck; se aplicó sobre `pais` (VARCHAR literal)
+- Nota: `accepted_values` sobre `parte_dia` falló porque Airbyte almacena `sys` como JSON en MotherDuck (`{"pod":"n"}`); `sys.pod` retorna tipo JSON y DuckDB no puede compararlo con strings planos. Se corrigió en staging con `json_extract_string` y se aplicó `accepted_values` directamente sobre `parte_dia` en staging.
 
 ### 3. Tests de dbt-expectations (mínimo 3)
 - [x] `expect_table_row_count_to_be_between` en `stg_weather__forecast` (1–40 filas)
