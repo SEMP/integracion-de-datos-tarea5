@@ -26,6 +26,9 @@ models:
         description: "Hora del pronóstico (0–23)."
       - name: parte_dia
         description: "Parte del día según OpenWeather: 'd' (día) o 'n' (noche)."
+        tests:
+          - accepted_values:
+              values: ['d', 'n']
       - name: ciudad
         description: "Nombre de la ciudad (fijo: Ciudad del Este)."
       - name: pais

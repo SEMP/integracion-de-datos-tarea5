@@ -106,14 +106,14 @@ models:
 
 === Resultado
 
-Los tests genéricos pasaron exitosamente. El resultado consolidado con todos los tests del proyecto (genéricos + dbt-expectations + singular) ejecutando `dbt test`:
+Los tests genéricos pasaron exitosamente. El resultado consolidado con todos los tests del proyecto ejecutando `dbt run && dbt test`:
 
 ```
-Finished running 32 data tests in 13.75s.
-PASS=32  WARN=0  ERROR=0  SKIP=0  TOTAL=32
+dbt run:  PASS=6  WARN=0  ERROR=0  TOTAL=6
+dbt test: PASS=33 WARN=0  ERROR=0  TOTAL=33
 ```
 
-Nota: la columna `parte_dia` proviene del campo JSON `sys.pod` almacenado por Airbyte (visible como `{"pod":"n"}` en MotherDuck). El test `accepted_values` genérico no puede aplicarse directamente sobre columnas de tipo JSON porque DuckDB intenta parsear los valores literales `'d'`/`'n'` como JSON, fallando con un error de conversión. Se aplicó `accepted_values` sobre `pais` (tipo `VARCHAR` garantizado por ser un literal en el staging), y la validación de `parte_dia` se resuelve mediante un singular test con `json_extract_string`.
+Incluye el nuevo test `accepted_values_stg_weather__forecast_parte_dia__d__n` (test 2 de 33), que ahora pasa correctamente gracias a la corrección en el staging.
 
 == Tests de dbt-expectations
 
@@ -163,15 +163,28 @@ Los singular tests son archivos `.sql` en `tests/` que implementan reglas de neg
 
 Valida que `parte_dia` en `obt_pronostico` solo contenga los valores `'d'` (día) o `'n'` (noche) definidos por la API de OpenWeather.
 
-Este test no pudo implementarse como `accepted_values` genérico en el `_models.yml` porque Airbyte almacena el campo `sys` de OpenWeather como columna de tipo `JSON` en MotherDuck (visible como `{"pod":"n"}`). Al acceder `sys.pod` en el modelo de staging, DuckDB retorna un valor de tipo `JSON`, y compararlo directamente con strings planos falla con un error de conversión JSON.
+La implementación de los tests reveló un problema en el modelo de staging: Airbyte almacena el campo `sys` de OpenWeather como columna de tipo `JSON` en MotherDuck (visible como `{"pod":"n"}`). Al acceder `sys.pod`, DuckDB retorna un valor de tipo `JSON`, lo que causaba que `accepted_values` fallara con un error de conversión al intentar comparar con strings planos.
 
-El singular test resuelve esto usando `json_extract_string` para extraer el valor real sin las comillas que agrega la serialización JSON de DuckDB:
+La corrección correcta es normalizar el tipo en la capa de staging — que es justamente donde deben resolverse los problemas de tipo antes de que los datos lleguen a capas downstream. Se actualizó `stg_weather__forecast.sql`:
 
 ```sql
+-- antes
+sys.pod                           AS parte_dia,
+
+-- después (corregido en Tarea 6 a partir de los tests)
+json_extract_string(sys.pod, '$') AS parte_dia,
+```
+
+Con `parte_dia` ya normalizado a `VARCHAR` desde staging, el singular test se simplifica a una comparación directa, y se agregó también el `accepted_values` genérico en `staging/_models.yml`:
+
+```sql
+-- tests/assert_parte_dia_valida.sql
 SELECT *
 FROM {{ ref('obt_pronostico') }}
-WHERE json_extract_string(parte_dia, '$') NOT IN ('d', 'n')
+WHERE parte_dia NOT IN ('d', 'n')
 ```
+
+Este ciclo — tests que descubren problemas de tipo → corrección en staging → tests que pasan limpiamente — es un ejemplo del valor que aporta la capa de testing en un proyecto dbt.
 
 === `assert_temperatura_rango_valido`
 

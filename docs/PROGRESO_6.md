@@ -13,7 +13,7 @@ Todos los tests deben pasar con `dbt build`.
 - [x] `packages.yml` ya incluía `dbt-expectations` (heredado de clase)
 - [x] `dbt deps` ejecutado correctamente
 
-### 2. Tests genéricos (mínimo 5) — 27 tests, PASS=27
+### 2. Tests genéricos (mínimo 5) — 28 tests, PASS=28
 - [x] `unique` + `not_null` en `dt_unix` (`stg_weather__forecast`)
 - [x] `unique` + `not_null` en `usuario_github_id` (`stg_github__stargazers`)
 - [x] `not_null` en columnas clave de `stg_github__branches`
@@ -61,7 +61,7 @@ Todos los tests deben pasar con `dbt build`.
 | Componente | Estado |
 |---|---|
 | dbt-expectations instalado | Listo |
-| Tests genéricos (≥5) | Listo — 27 tests, PASS=27 |
+| Tests genéricos (≥5) | Listo — 28 tests, PASS=28 |
 | Tests dbt-expectations (≥3) | Listo — 3 tests agregados |
 | Singular tests (≥2) | Listo — PASS=2 |
 | Documentación modelos/columnas | Listo — descripciones en los 3 `_models.yml` |

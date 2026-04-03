@@ -123,7 +123,7 @@ renamed AS
         YEAR(CAST(dt_txt AS TIMESTAMP)) AS anio,
         MONTH(CAST(dt_txt AS TIMESTAMP)) AS mes,
         DAY(CAST(dt_txt AS TIMESTAMP))  AS dia,
-        sys.pod                         AS parte_dia,
+        json_extract_string(sys.pod, '$') AS parte_dia,
 
         -- ubicacion (fija para esta fuente)
         -25.5309750                     AS latitud,
