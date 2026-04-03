@@ -20,8 +20,7 @@ models:
         description: "Parte del día: 'd' (día) o 'n' (noche)."
         tests:
           - accepted_values:
-              arguments:
-                values: ['d', 'n']
+              values: ['d', 'n']
       - name: ciudad
         description: "Nombre de la ciudad (Ciudad del Este)."
         tests:

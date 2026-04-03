@@ -84,8 +84,7 @@ models:
       - name: parte_dia
         tests:
           - accepted_values:
-              arguments:
-                values: ['d', 'n']
+              values: ['d', 'n']
       - name: fecha
         tests: [not_null]
       - name: temperatura_c
