@@ -42,6 +42,8 @@
 
 ## Estructura objetivo del proyecto
 
+> Planificación inicial (star schema). La implementación final difiere — ver estructura final abajo.
+
 ```
 mi_proyecto_dbt/
 ├── dbt_project.yml
@@ -54,11 +56,41 @@ mi_proyecto_dbt/
 │   ├── intermediate/
 │   │   └── int_github_actividad.sql
 │   └── marts/
-│       ├── fct_pronostico.sql
-│       ├── dim_fecha.sql
-│       └── dim_condicion.sql
+│       ├── fct_pronostico.sql   ← reemplazado por OBT
+│       ├── dim_fecha.sql        ← no implementado
+│       └── dim_condicion.sql    ← no implementado
 └── README.md
 ```
+
+---
+
+## Estructura final del proyecto
+
+Archivos fuente relevantes (excluye artefactos `target/`, `dbt_packages/`, `logs/`):
+
+```
+mi_proyecto_dbt/
+├── dbt_project.yml          # Configuración principal
+├── profiles.yml             # Conexión a MotherDuck (token vía env var)
+├── packages.yml             # Dependencias dbt (dbt_expectations — heredado de clase)
+├── requirements.txt         # Dependencias Python (dbt-core, dbt-duckdb)
+├── Makefile                 # Comandos de utilidad
+├── set_env.sh               # Script para exportar MOTHERDUCK_TOKEN
+├── models/
+│   ├── staging/
+│   │   ├── _sources.yml
+│   │   ├── stg_weather__forecast.sql
+│   │   ├── stg_github__stargazers.sql
+│   │   └── stg_github__branches.sql
+│   ├── intermediate/
+│   │   └── int_github_actividad.sql
+│   └── marts/
+│       ├── obt_pronostico.sql
+│       └── obt_github_actividad.sql
+└── README.md
+```
+
+**Decisión de diseño:** Se eligió OBT (One Big Table) en lugar de star schema dado el bajo volumen de datos (40 filas weather, 1 fila GitHub). No hay redundancia real que justifique dimensiones separadas.
 
 ---
 
