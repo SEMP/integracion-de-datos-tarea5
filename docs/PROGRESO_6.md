@@ -10,44 +10,49 @@ Todos los tests deben pasar con `dbt build`.
 ## Checklist de entregables
 
 ### 1. dbt-expectations instalado
-- [ ] `packages.yml` actualizado con `dbt-expectations`
-- [ ] `dbt deps` ejecutado correctamente
+- [x] `packages.yml` ya incluía `dbt-expectations` (heredado de clase)
+- [x] `dbt deps` ejecutado correctamente
 
-### 2. Tests genéricos (mínimo 5)
-- [ ] `unique` + `not_null` en PKs de staging
-- [ ] `relationships` en intermediate (si aplica)
-- [ ] `accepted_values` en categorías de marts
+### 2. Tests genéricos (mínimo 5) — 27 tests, PASS=27
+- [x] `unique` + `not_null` en `dt_unix` (`stg_weather__forecast`)
+- [x] `unique` + `not_null` en `usuario_github_id` (`stg_github__stargazers`)
+- [x] `not_null` en columnas clave de `stg_github__branches`
+- [x] `relationships` en `int_github_actividad.repositorio_nombre_completo` → `stg_github__branches`
+- [x] `unique` + `not_null` en PKs surrogate de marts (`pronostico_id`, `estrella_id`)
+- [x] `accepted_values` en `obt_pronostico.pais` → `['PY']`
+- [x] `not_null` en columnas clave de `obt_pronostico` y `obt_github_actividad`
+- Nota: `accepted_values` sobre `parte_dia` falló por tipo `UNION` en MotherDuck; se aplicó sobre `pais` (VARCHAR literal)
 
 ### 3. Tests de dbt-expectations (mínimo 3)
-- [ ] `expect_table_row_count_to_be_between` en staging
-- [ ] `expect_column_values_to_be_between` en marts
-- [ ] (1 adicional a definir)
+- [x] `expect_table_row_count_to_be_between` en `stg_weather__forecast` (1–40 filas)
+- [x] `expect_table_row_count_to_be_between` en `stg_github__stargazers` (1–100 filas)
+- [x] `expect_column_values_to_be_between` en `obt_pronostico.prob_precipitacion` (0–1)
 
 ### 4. Singular tests personalizados (mínimo 2)
 - [ ] Regla de negocio personalizada #1 en `tests/`
 - [ ] Regla de negocio personalizada #2 en `tests/`
 
 ### 5. Documentación de modelos y columnas clave
-- [ ] `_models.yml` (o equivalente) con descripción de modelos y columnas en staging
-- [ ] Documentación de intermediate
-- [ ] Documentación de marts
+- [x] Descripciones de modelos y columnas en `staging/_models.yml`
+- [x] Descripciones de modelos y columnas en `intermediate/_models.yml`
+- [x] Descripciones de modelos y columnas en `marts/_models.yml`
 
 ### 6. Captura del DAG con documentación generada
-- [ ] `dbt docs generate` ejecutado tras agregar tests y docs
+- [ ] `dbt docs generate` ejecutado tras completar tests y docs
 - [ ] Screenshot del DAG actualizado guardado en `assets/`
 
 ---
 
 ## Tests por capa (tabla de requerimientos mínimos)
 
-| Capa | Test requerido | Tipo |
-|---|---|---|
-| staging | `unique` + `not_null` en PKs | Generic |
-| staging | `expect_table_row_count_to_be_between` | dbt-expectations |
-| intermediate | `relationships` (si aplica) | Generic |
-| marts | `accepted_values` en categorías | Generic |
-| marts | `expect_column_values_to_be_between` | dbt-expectations |
-| `tests/` | Regla de negocio personalizada | Singular |
+| Capa | Test requerido | Tipo | Estado |
+|---|---|---|---|
+| staging | `unique` + `not_null` en PKs | Generic | ✅ |
+| staging | `expect_table_row_count_to_be_between` | dbt-expectations | ✅ |
+| intermediate | `relationships` | Generic | ✅ |
+| marts | `accepted_values` en categorías | Generic | ✅ |
+| marts | `expect_column_values_to_be_between` | dbt-expectations | ✅ |
+| `tests/` | Regla de negocio personalizada | Singular | ⬜ |
 
 ---
 
@@ -55,10 +60,10 @@ Todos los tests deben pasar con `dbt build`.
 
 | Componente | Estado |
 |---|---|
-| dbt-expectations instalado | Pendiente |
-| Tests genéricos (≥5) | Pendiente |
-| Tests dbt-expectations (≥3) | Pendiente |
+| dbt-expectations instalado | Listo |
+| Tests genéricos (≥5) | Listo — 27 tests, PASS=27 |
+| Tests dbt-expectations (≥3) | Listo — 3 tests agregados |
 | Singular tests (≥2) | Pendiente |
-| Documentación modelos/columnas | Pendiente |
+| Documentación modelos/columnas | Listo — descripciones en los 3 `_models.yml` |
 | DAG con docs generado | Pendiente |
-| `dbt build` todo en PASS | Pendiente |
+| `dbt build` todo en PASS | Pendiente (confirmar tras singular tests) |
