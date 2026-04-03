@@ -53,10 +53,22 @@ Base de datos MotherDuck `md:airbyte_curso`, cargada con Airbyte en clases anter
 
 ## Ejecutar el proyecto
 
+**1. Configurar el token de MotherDuck**
+
+`set_env.sh` está en `.gitignore` y no se versiona. Crearlo a partir de la plantilla incluida:
+
+```bash
+cd workspaces/dbt-duckdb/mi_proyecto_dbt
+cp set_env.example.sh set_env.sh
+# Editar set_env.sh y reemplazar TU_TOKEN con el token real de MotherDuck
+```
+
+**2. Ejecutar**
+
 ```bash
 cd workspaces/dbt-duckdb
 source .venv/bin/activate
-source mi_proyecto_dbt/set_env.sh   # exporta MOTHERDUCK_TOKEN
+source mi_proyecto_dbt/set_env.sh
 
 cd mi_proyecto_dbt
 dbt deps
