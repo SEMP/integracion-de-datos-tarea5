@@ -110,10 +110,10 @@ Los tests genéricos pasaron exitosamente. El resultado consolidado con todos lo
 
 ```
 dbt run:  PASS=6  WARN=0  ERROR=0  TOTAL=6
-dbt test: PASS=33 WARN=0  ERROR=0  TOTAL=33
+dbt test: PASS=34 WARN=0  ERROR=0  TOTAL=34
 ```
 
-Incluye el nuevo test `accepted_values_stg_weather__forecast_parte_dia__d__n` (test 2 de 33), que ahora pasa correctamente gracias a la corrección en el staging.
+Incluye el nuevo test `accepted_values_stg_weather__forecast_parte_dia__d__n` (test 2 de 34), que ahora pasa correctamente gracias a la corrección en el staging.
 
 == Tests de dbt-expectations
 
@@ -194,11 +194,22 @@ FROM {{ ref('obt_pronostico') }}
 WHERE temp_min_c > temp_max_c
 ```
 
+=== `assert_repositorio_formato_valido`
+
+Valida que `repositorio_nombre_completo` en `obt_github_actividad` tenga el formato correcto `owner/repo`: ambas partes derivadas por `SPLIT_PART` deben ser strings no vacíos. Un formato inválido (ej. `/repo`, `owner/`, `/`) produciría partes vacías e indicaría datos corruptos del conector de GitHub en Airbyte.
+
+```sql
+SELECT *
+FROM {{ ref('obt_github_actividad') }}
+WHERE repositorio_propietario = ''
+   OR repositorio_nombre = ''
+```
+
 === Resultado
 
 ```
-Finished running 2 data tests in 28.48s.
-PASS=2  WARN=0  ERROR=0  SKIP=0  TOTAL=2
+dbt run:  PASS=6  WARN=0  ERROR=0  TOTAL=6
+dbt test: PASS=34 WARN=0  ERROR=0  TOTAL=34
 ```
 
 == Documentación de modelos y columnas
