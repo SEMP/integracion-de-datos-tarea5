@@ -383,9 +383,18 @@ SELECT * FROM final
 
 == DAG del proyecto
 
-El DAG (Directed Acyclic Graph) de dbt representa las dependencias entre modelos. Se generó ejecutando `dbt docs generate` y se visualizó con `dbt docs serve`. La captura muestra el linaje del pipeline de GitHub (filtrado con `+int_github_actividad+`): las fuentes crudas `github.branches` y `github.stargazers` fluyen hacia sus respectivos modelos de staging, luego se combinan en `int_github_actividad` y finalmente producen `obt_github_actividad`.
+El DAG (Directed Acyclic Graph) de dbt representa las dependencias entre modelos. Se generó ejecutando `dbt docs generate` y se visualizó con `dbt docs serve`. El proyecto contiene dos pipelines independientes, capturados por separado.
+
+*Pipeline weather:* la fuente cruda `weather.weather` fluye hacia `stg_weather__forecast` (staging) y directamente a `obt_pronostico` (mart), sin capa intermediate dado que no hay joins con otras fuentes.
 
 #figure(
-  image("assets/dag_tarea5.png", width: 100%),
-  caption: [DAG del proyecto dbt — linaje del pipeline de GitHub],
+  image("assets/dag_weather_tarea5.png", width: 100%),
+  caption: [DAG — pipeline weather (`+obt_pronostico+`)],
+)
+
+*Pipeline GitHub:* las fuentes `github.branches` y `github.stargazers` fluyen hacia sus modelos de staging, se combinan en `int_github_actividad` (intermediate) y producen `obt_github_actividad` (mart).
+
+#figure(
+  image("assets/dag_github_tarea5.png", width: 100%),
+  caption: [DAG — pipeline GitHub (`+int_github_actividad+`)],
 )

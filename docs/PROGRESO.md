@@ -36,7 +36,7 @@
 ### 6. Captura del DAG
 - [x] `dbt docs generate` ejecutado
 - [x] `dbt docs serve` corriendo y DAG visible en el navegador
-- [x] Screenshot del DAG guardado en `assets/dag_tarea5.png` (pipeline GitHub, filtro `+int_github_actividad+`)
+- [x] Screenshot del DAG guardado — `assets/dag_github_tarea5.png` (filtro `+int_github_actividad+`) y `assets/dag_weather_tarea5.png` (filtro `+obt_pronostico+`)
 
 ---
 
