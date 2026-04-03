@@ -278,3 +278,8 @@ El DAG actualizado refleja los singular tests como nodos del grafo de linaje, vi
 Finished running 2 table models, 34 data tests, 4 view models in 32.29s.
 PASS=40  WARN=0  ERROR=0  SKIP=0  TOTAL=40
 ```
+
+#figure(
+  image("assets/dbt_build_tarea6.png", width: 100%),
+  caption: [Resultado de `dbt build` -- PASS=40],
+)
