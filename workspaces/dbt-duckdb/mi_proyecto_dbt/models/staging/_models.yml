@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: stg_weather__forecast
+    description: >
+      Limpieza y renombrado de weather.weather. Extrae campos de fecha/hora desde dt_txt,
+      fija las coordenadas de Ciudad del Este, y desanida los structs sys, main, wind,
+      clouds, rain y el array weather de la API de OpenWeather.
+    columns:
+      - name: dt_unix
+        description: "Timestamp Unix del intervalo de pronóstico. Clave primaria natural."
+        tests:
+          - unique
+          - not_null
+      - name: dt_txt
+        description: "Fecha y hora del pronóstico en formato texto (YYYY-MM-DD HH:MM:SS)."
+      - name: fecha
+        description: "Fecha del pronóstico (DATE)."
+        tests:
+          - not_null
+      - name: hora
+        description: "Hora del pronóstico (0–23)."
+      - name: parte_dia
+        description: "Parte del día según OpenWeather: 'd' (día) o 'n' (noche)."
+      - name: ciudad
+        description: "Nombre de la ciudad (fijo: Ciudad del Este)."
+      - name: pais
+        description: "Código de país ISO (fijo: PY)."
+      - name: temperatura_c
+        description: "Temperatura en grados Celsius."
+      - name: humedad_pct
+        description: "Humedad relativa en porcentaje (0–100)."
+      - name: prob_precipitacion
+        description: "Probabilidad de precipitación (0.0–1.0)."
+
+  - name: stg_github__stargazers
+    description: >
+      Limpieza de github.stargazers. Expone los datos del usuario que dio estrella
+      al repositorio SEMP/lib-utilidades y la fecha del evento.
+    columns:
+      - name: usuario_github_id
+        description: "ID numérico del usuario en GitHub. Clave primaria natural."
+        tests:
+          - unique
+          - not_null
+      - name: usuario_login
+        description: "Nombre de usuario (login) en GitHub."
+        tests:
+          - not_null
+      - name: repositorio_nombre_completo
+        description: "Nombre completo del repositorio en formato owner/repo."
+        tests:
+          - not_null
+      - name: starred_at
+        description: "Timestamp del momento en que se dio la estrella."
+
+  - name: stg_github__branches
+    description: >
+      Limpieza de github.branches. Expone nombre, SHA del último commit
+      y estado de protección de cada rama del repositorio SEMP/lib-utilidades.
+    columns:
+      - name: rama_nombre
+        description: "Nombre de la rama. Clave primaria natural dentro del repositorio."
+        tests:
+          - not_null
+      - name: repositorio_nombre_completo
+        description: "Nombre completo del repositorio en formato owner/repo."
+        tests:
+          - not_null
+      - name: rama_commit_sha
+        description: "SHA del commit apuntado por la rama."
+        tests:
+          - not_null
+      - name: rama_protegida
+        description: "Indica si la rama tiene reglas de protección activas."

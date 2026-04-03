@@ -1,0 +1,64 @@
+version: 2
+
+models:
+  - name: obt_pronostico
+    description: >
+      OBT (One Big Table) del pronóstico meteorológico. Aplana todos los atributos de
+      stg_weather__forecast y agrega pronostico_id como clave primaria surrogate.
+      Materializada como tabla en MotherDuck.
+    columns:
+      - name: pronostico_id
+        description: "Clave primaria surrogate generada con ROW_NUMBER()."
+        tests:
+          - unique
+          - not_null
+      - name: fecha
+        description: "Fecha del intervalo de pronóstico."
+        tests:
+          - not_null
+      - name: parte_dia
+        description: "Parte del día: 'd' (día) o 'n' (noche)."
+        tests:
+          - accepted_values:
+              arguments:
+                values: ['d', 'n']
+      - name: ciudad
+        description: "Nombre de la ciudad (Ciudad del Este)."
+        tests:
+          - not_null
+      - name: temperatura_c
+        description: "Temperatura en grados Celsius."
+        tests:
+          - not_null
+      - name: humedad_pct
+        description: "Humedad relativa en porcentaje (0–100)."
+        tests:
+          - not_null
+      - name: prob_precipitacion
+        description: "Probabilidad de precipitación (0.0–1.0)."
+
+  - name: obt_github_actividad
+    description: >
+      OBT (One Big Table) de actividad GitHub. Combina el evento de estrella,
+      datos del usuario y rama principal del repositorio SEMP/lib-utilidades.
+      Materializada como tabla en MotherDuck.
+    columns:
+      - name: estrella_id
+        description: "Clave primaria surrogate generada con ROW_NUMBER()."
+        tests:
+          - unique
+          - not_null
+      - name: usuario_login
+        description: "Nombre de usuario (login) en GitHub."
+        tests:
+          - not_null
+      - name: repositorio_nombre_completo
+        description: "Nombre completo del repositorio en formato owner/repo."
+        tests:
+          - not_null
+      - name: rama_principal_nombre
+        description: "Nombre de la rama principal del repositorio."
+      - name: starred_at
+        description: "Timestamp del evento de estrella."
+        tests:
+          - not_null

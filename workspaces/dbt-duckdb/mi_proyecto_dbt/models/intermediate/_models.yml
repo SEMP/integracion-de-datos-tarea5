@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: int_github_actividad
+    description: >
+      Une stg_github__stargazers con stg_github__branches mediante LEFT JOIN sobre
+      repositorio_nombre_completo. Deriva repositorio_propietario y repositorio_nombre
+      partiendo el nombre completo por '/'.
+    columns:
+      - name: usuario_github_id
+        description: "ID numérico del usuario en GitHub."
+        tests:
+          - not_null
+      - name: repositorio_nombre_completo
+        description: "Nombre completo del repositorio en formato owner/repo."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_github__branches')
+              field: repositorio_nombre_completo
+      - name: repositorio_propietario
+        description: "Propietario del repositorio (parte antes de '/' en el nombre completo)."
+        tests:
+          - not_null
+      - name: repositorio_nombre
+        description: "Nombre corto del repositorio (parte después de '/' en el nombre completo)."
+        tests:
+          - not_null
+      - name: rama_principal_nombre
+        description: "Nombre de la rama principal del repositorio."
+      - name: starred_at
+        description: "Timestamp del evento de estrella."
