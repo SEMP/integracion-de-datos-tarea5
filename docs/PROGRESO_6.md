@@ -17,9 +17,9 @@ Todos los tests deben pasar con `dbt build`.
 - [x] `unique` + `not_null` en `dt_unix` (`stg_weather__forecast`)
 - [x] `unique` + `not_null` en `usuario_github_id` (`stg_github__stargazers`)
 - [x] `not_null` en columnas clave de `stg_github__branches`
-- [x] `relationships` en `int_github_actividad.repositorio_nombre_completo` → `stg_github__branches`
+- [x] `relationships` en `int_github_actividad.repositorio_nombre_completo` -> `stg_github__branches`
 - [x] `unique` + `not_null` en PKs surrogate de marts (`pronostico_id`, `estrella_id`)
-- [x] `accepted_values` en `obt_pronostico.pais` → `['PY']`
+- [x] `accepted_values` en `obt_pronostico.pais` -> `['PY']`
 - [x] `not_null` en columnas clave de `obt_pronostico` y `obt_github_actividad`
 - Nota: `accepted_values` sobre `parte_dia` falló por tipo `UNION` en MotherDuck; se aplicó sobre `pais` (VARCHAR literal)
 
