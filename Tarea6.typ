@@ -247,4 +247,25 @@ Cada modelo documenta su propósito, la fuente cruda que consume y las particula
 
 == DAG con documentación generada
 
-_Pendiente de captura tras completar documentación y ejecutar `dbt docs generate`._
+El DAG actualizado refleja los singular tests como nodos del grafo de linaje, visibles al filtrar por cada test en `dbt docs serve`. Los tests aparecen en color magenta (distinto a los modelos en azul y las fuentes en verde), lo que permite identificar rápidamente qué nodos son tests y sobre qué modelos actúan.
+
+*`assert_parte_dia_valida`:* valida `obt_pronostico`, cuyo linaje completo es `weather.weather → stg_weather__forecast → obt_pronostico → assert_parte_dia_valida`.
+
+#figure(
+  image("assets/dag_weather_test_day_tarea6.png", width: 100%),
+  caption: [DAG — `assert_parte_dia_valida` (`+assert_parte_dia_valida`)],
+)
+
+*`assert_temperatura_rango_valido`:* valida `obt_pronostico` por el mismo linaje.
+
+#figure(
+  image("assets/dag_weather_test_temperature_tarea6.png", width: 100%),
+  caption: [DAG — `assert_temperatura_rango_valido` (`+assert_temperatura_rango_valido`)],
+)
+
+*`assert_repositorio_formato_valido`:* valida `obt_github_actividad`, cuyo linaje completo es `github.branches` + `github.stargazers` → staging → `int_github_actividad` → `obt_github_actividad` → `assert_repositorio_formato_valido`.
+
+#figure(
+  image("assets/dag_github_test_repository_tarea6.png", width: 100%),
+  caption: [DAG — `assert_repositorio_formato_valido` (`+assert_repositorio_formato_valido`)],
+)

@@ -39,8 +39,10 @@ Todos los tests deben pasar con `dbt build`.
 - [x] Descripciones de modelos y columnas en `marts/_models.yml`
 
 ### 6. Captura del DAG con documentación generada
-- [ ] `dbt docs generate` ejecutado tras completar tests y docs
-- [ ] Screenshot del DAG actualizado guardado en `assets/`
+- [x] `dbt docs generate` ejecutado tras agregar tests y docs
+- [x] `assets/dag_weather_test_day_tarea6.png` — linaje de `assert_parte_dia_valida`
+- [x] `assets/dag_weather_test_temperature_tarea6.png` — linaje de `assert_temperatura_rango_valido`
+- [x] `assets/dag_github_test_repository_tarea6.png` — linaje de `assert_repositorio_formato_valido`
 
 ---
 
@@ -66,5 +68,5 @@ Todos los tests deben pasar con `dbt build`.
 | Tests dbt-expectations (≥3) | Listo — 3 tests agregados |
 | Singular tests (≥2) | Listo — 3 tests, PASS=34 total |
 | Documentación modelos/columnas | Listo — descripciones en los 3 `_models.yml` |
-| DAG con docs generado | Pendiente |
-| `dbt build` todo en PASS | Pendiente (confirmar tras singular tests) |
+| DAG con docs generado | Listo — 3 capturas en `assets/` |
+| `dbt build` todo en PASS | Pendiente (ejecutar `dbt build` final) |
