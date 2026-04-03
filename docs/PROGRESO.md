@@ -14,7 +14,7 @@
 - [x] Proyecto copiado a `workspaces/dbt-duckdb/mi_proyecto_dbt/` (`.git` interno eliminado)
 - [x] `dbt_project.yml` configurado con nombre `mi_proyecto_dbt` y rutas de modelos
 - [x] `profiles.yml` dentro del proyecto, conectado a `md:airbyte_curso` vía `MOTHERDUCK_TOKEN`
-- [ ] `dbt debug` exitoso (conexión verificada — pendiente de ejecutar)
+- [x] `dbt debug` exitoso (conexión verificada — dbt 1.11.7, adapter duckdb 1.10.1)
 
 ### 2. Modelos staging (mínimo 2, uno por source)
 - [ ] `staging/stg_weather__forecast.sql` — limpieza de `weather.weather`
@@ -80,7 +80,7 @@ mi_proyecto_dbt/
 |-----------------------|------------|
 | Proyecto dbt init     | Listo      |
 | profiles.yml          | Listo      |
-| dbt debug             | Pendiente  |
+| dbt debug             | Listo      |
 | _sources.yml          | Pendiente  |
 | Modelos staging       | Pendiente  |
 | Modelo intermediate   | Pendiente  |
