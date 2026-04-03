@@ -1,18 +1,20 @@
-# Tarea 5 — Transformación de Datos con dbt
+# Tareas — Introducción a la Integración de Datos
 
 **Curso:** Introducción a la Integración de Datos  
 **Autor:** Sergio Enrique Morel Peralta  
 **Institución:** Facultad Politécnica — UNA
 
-## Documento de entrega
+---
+
+## Tarea 5 — Transformación de Datos con dbt
+
+### Documento de entrega
 
 [`docs/Tarea-Clase5-Integracion-Datos.pdf`](docs/Tarea-Clase5-Integracion-Datos.pdf)
 
 Generado desde [`Tarea5.typ`](Tarea5.typ) (Typst). Incluye descripción del proyecto, código de todos los modelos y capturas del DAG.
 
----
-
-## Entregables requeridos
+### Entregables
 
 | Entregable | Ubicación |
 |---|---|
@@ -25,7 +27,7 @@ Generado desde [`Tarea5.typ`](Tarea5.typ) (Typst). Incluye descripción del proy
 | DAG — pipeline weather | `assets/dag_weather_tarea5.png` |
 | DAG — pipeline GitHub | `assets/dag_github_tarea5.png` |
 
-## Modelos implementados
+### Modelos implementados
 
 ```
 staging/
@@ -40,6 +42,34 @@ marts/
   obt_pronostico.sql            # OBT pronóstico meteorológico (materializada como table)
   obt_github_actividad.sql      # OBT actividad GitHub (materializada como table)
 ```
+
+### Seguimiento
+
+[`docs/PROGRESO_5.md`](docs/PROGRESO_5.md)
+
+---
+
+## Tarea 6 — Testing y Documentación con dbt
+
+Extiende el proyecto de la Tarea 5 agregando tests y documentación en el mismo repositorio.
+Todos los tests deben pasar con `dbt build`.
+
+### Entregables
+
+| Entregable | Ubicación |
+|---|---|
+| `packages.yml` con dbt-expectations | `workspaces/dbt-duckdb/mi_proyecto_dbt/packages.yml` |
+| Tests genéricos (≥5) | archivos `_models.yml` / `_sources.yml` en cada capa |
+| Tests dbt-expectations (≥3) | archivos `_models.yml` en cada capa |
+| Singular tests (≥2) | `workspaces/dbt-duckdb/mi_proyecto_dbt/tests/` |
+| Documentación de modelos y columnas | archivos `_models.yml` en cada capa |
+| DAG con documentación generada | `assets/` (pendiente) |
+
+### Seguimiento
+
+[`docs/PROGRESO_6.md`](docs/PROGRESO_6.md)
+
+---
 
 ## Datos fuente
 
@@ -63,7 +93,7 @@ cp set_env.example.sh set_env.sh
 # Editar set_env.sh y reemplazar TU_TOKEN con el token real de MotherDuck
 ```
 
-**2. Ejecutar**
+**2. Ejecutar modelos**
 
 ```bash
 cd workspaces/dbt-duckdb
@@ -75,6 +105,8 @@ dbt deps
 dbt run
 ```
 
-## Seguimiento de progreso
+**3. Ejecutar modelos + tests (Tarea 6)**
 
-[`docs/PROGRESO.md`](docs/PROGRESO.md)
+```bash
+dbt build
+```
