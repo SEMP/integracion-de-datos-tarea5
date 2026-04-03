@@ -1,12 +1,20 @@
 version: 2
 
 sources:
-  - name: raw
+  - name: weather
+    description: "Datos de pronóstico meteorológico sincronizados desde OpenWeather via Airbyte."
     database: "{{ target.database }}"
-    schema: main
-    freshness:
-      warn_after: {count: 48, period: hour}
-      error_after: {count: 72, period: hour}
-    loaded_at_field: _airbyte_extracted_at  # Columna de timestamp
+    schema: weather
     tables:
-      - name: pokemon
+      - name: weather
+        description: "Pronóstico de 5 días con intervalos de 3 horas para Ciudad del Este, PY."
+
+  - name: github
+    description: "Metadatos del repositorio SEMP/lib-utilidades sincronizados desde GitHub via Airbyte."
+    database: "{{ target.database }}"
+    schema: github
+    tables:
+      - name: branches
+        description: "Ramas del repositorio SEMP/lib-utilidades."
+      - name: stargazers
+        description: "Usuarios que marcaron con estrella el repositorio SEMP/lib-utilidades."

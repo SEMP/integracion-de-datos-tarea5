@@ -19,7 +19,7 @@
 
 Esta tarea implementa un proyecto *dbt (data build tool)* completo sobre los datos cargados con Airbyte en clases anteriores: pronósticos meteorológicos de *OpenWeather* (`weather.weather`) y metadatos del repositorio *SEMP/lib-utilidades* en GitHub (`github.branches` y `github.stargazers`), disponibles en MotherDuck bajo la base de datos `md:airbyte_curso`. El proyecto organiza las transformaciones en tres capas — *staging*, *intermediate* y *marts* — siguiendo las convenciones de dbt.
 
-== 0. Datos fuente
+== Datos fuente
 
 Los datos crudos sincronizados por Airbyte en clases anteriores son:
 
@@ -31,9 +31,9 @@ Los datos crudos sincronizados por Airbyte en clases anteriores son:
   [`github.stargazers`], [1],  [Estrella dada al repositorio SEMP/lib-utilidades],
 )
 
-== 1. Configuración del proyecto dbt
+== Configuración del proyecto dbt
 
-=== 1.1 Instalación y entorno virtual
+=== Instalación y entorno virtual
 
 El proyecto utiliza *dbt-core* con el adaptador *dbt-duckdb*, que permite conectarse a MotherDuck (DuckDB en la nube). Se creó un entorno virtual Python en `workspaces/dbt-duckdb/.venv` e instalaron las dependencias declaradas en `requirements.txt`:
 
@@ -43,7 +43,7 @@ source .venv/bin/activate
 pip install -r mi_proyecto_dbt/requirements.txt
 ```
 
-=== 1.2 Estructura del proyecto
+=== Estructura del proyecto
 
 El proyecto dbt se ubica en `workspaces/dbt-duckdb/mi_proyecto_dbt/` e incluye los archivos de configuración y los modelos organizados en tres capas:
 
@@ -65,7 +65,7 @@ mi_proyecto_dbt/
 └── requirements.txt
 ```
 
-=== 1.3 Conexión a MotherDuck (`profiles.yml`)
+=== Conexión a MotherDuck (`profiles.yml`)
 
 La conexión se configura en `profiles.yml` dentro del proyecto. El token de acceso se lee desde la variable de entorno `MOTHERDUCK_TOKEN` para evitar exponer credenciales en el repositorio:
 
@@ -78,7 +78,7 @@ mi_proyecto_dbt:
   target: dev
 ```
 
-=== 1.4 Verificación de la conexión (`dbt debug`)
+=== Verificación de la conexión (`dbt debug`)
 
 Se verificó la conexión a MotherDuck ejecutando `dbt debug`, obteniendo el resultado:
 
@@ -95,18 +95,149 @@ Connection test:     [OK connection ok]
 All checks passed!
 ```
 
-== 2. Modelos staging
+== Modelos staging
+
+La capa de staging limpia y renombra los campos de las tablas crudas sin aplicar lógica de negocio. Cada modelo sigue el patrón `stg_<source>__<tabla>.sql` y usa dos CTEs: `source` (referencia a la tabla cruda vía `{{ source() }}`) y `renamed` (selección y renombrado de columnas).
+
+Un detalle importante: Airbyte almacenó los campos anidados del JSON como *structs* de DuckDB en lugar de aplanarlos con guiones bajos. Por ello fue necesario usar notación de punto (`sys.pod`, `main.temp`, `wind.speed`) y notación de corchetes para claves con nombres reservados o que comienzan con número (`clouds['all']`, `rain['3h']`). Los elementos del array `weather` se acceden con índice 1-based (`weather[1].id`).
+
+=== `stg_weather__forecast`
+
+Limpia la tabla `weather.weather` (40 filas). Extrae los campos de fecha/hora desde `dt_txt`, fija las coordenadas de ubicación (fuente tiene una sola ciudad), y desanida los structs `sys`, `main`, `wind`, `clouds`, `rain` y el array `weather`.
+
+```sql
+WITH source AS
+(
+    SELECT *
+    FROM {{ source('weather', 'weather') }}
+),
+
+renamed AS
+(
+    SELECT
+        -- tiempo
+        dt                              AS dt_unix,
+        dt_txt,
+        CAST(dt_txt AS DATE)            AS fecha,
+        HOUR(CAST(dt_txt AS TIMESTAMP)) AS hora,
+        YEAR(CAST(dt_txt AS TIMESTAMP)) AS anio,
+        MONTH(CAST(dt_txt AS TIMESTAMP)) AS mes,
+        DAY(CAST(dt_txt AS TIMESTAMP))  AS dia,
+        sys.pod                         AS parte_dia,
+
+        -- ubicacion (fija para esta fuente)
+        -25.5309750                     AS latitud,
+        -54.6388360                     AS longitud,
+        'Ciudad del Este'               AS ciudad,
+        'PY'                            AS pais,
+
+        -- condicion climatica
+        weather[1].id                   AS condicion_codigo,
+        weather[1].main                 AS condicion_principal,
+        weather[1].description          AS condicion_descripcion,
+        weather[1].icon                 AS condicion_icono,
+
+        -- temperatura
+        main.temp                       AS temperatura_c,
+        main.feels_like                 AS sensacion_termica_c,
+        main.temp_min                   AS temp_min_c,
+        main.temp_max                   AS temp_max_c,
+
+        -- humedad y presion
+        main.humidity                   AS humedad_pct,
+        main.pressure                   AS presion_hpa,
+        main.sea_level                  AS presion_mar_hpa,
+        main.grnd_level                 AS presion_suelo_hpa,
+
+        -- viento
+        wind.speed                      AS velocidad_viento_ms,
+        wind.deg                        AS dir_viento_deg,
+        wind.gust                       AS rafaga_viento_ms,
+
+        -- nubes y precipitacion
+        clouds['all']                   AS cobertura_nubes_pct,
+        pop                             AS prob_precipitacion,
+        rain['3h']                      AS lluvia_3h_mm,
+        visibility                      AS visibilidad_m
+
+    FROM source
+)
+
+SELECT * FROM renamed
+```
+
+=== `stg_github__stargazers`
+
+Limpia la tabla `github.stargazers` (1 fila). El campo `user` es un struct; `user_id` se encuentra en el nivel raíz de la tabla.
+
+```sql
+WITH source AS
+(
+    SELECT *
+    FROM {{ source('github', 'stargazers') }}
+),
+
+renamed AS
+(
+    SELECT
+        -- usuario
+        user_id                         AS usuario_github_id,
+        user.login                      AS usuario_login,
+        user.type                       AS usuario_tipo,
+        user.site_admin                 AS usuario_es_admin,
+        user.html_url                   AS usuario_perfil_url,
+        user.avatar_url                 AS usuario_avatar_url,
+
+        -- repositorio
+        repository                      AS repositorio_nombre_completo,
+
+        -- evento
+        starred_at,
+        CAST(starred_at AS DATE)        AS fecha,
+        YEAR(starred_at)                AS anio,
+        MONTH(starred_at)               AS mes,
+        DAY(starred_at)                 AS dia
+
+    FROM source
+)
+
+SELECT * FROM renamed
+```
+
+=== `stg_github__branches`
+
+Limpia la tabla `github.branches` (1 fila). El campo `commit` es un struct con `sha` y `url`.
+
+```sql
+WITH source AS
+(
+    SELECT *
+    FROM {{ source('github', 'branches') }}
+),
+
+renamed AS
+(
+    SELECT
+        repository                      AS repositorio_nombre_completo,
+        name                            AS rama_nombre,
+        commit.sha                      AS rama_commit_sha,
+        commit.url                      AS rama_commit_url,
+        protected                       AS rama_protegida
+
+    FROM source
+)
+
+SELECT * FROM renamed
+```
+
+== Modelo intermediate
 
 _En construcción._
 
-== 3. Modelo intermediate
+== Modelos mart
 
 _En construcción._
 
-== 4. Modelos mart
-
-_En construcción._
-
-== 5. DAG del proyecto
+== DAG del proyecto
 
 _Pendiente de captura tras ejecutar `dbt docs generate`._

@@ -17,13 +17,13 @@
 - [x] `dbt debug` exitoso (conexión verificada — dbt 1.11.7, adapter duckdb 1.10.1)
 
 ### 2. Modelos staging (mínimo 2, uno por source)
-- [ ] `staging/stg_weather__forecast.sql` — limpieza de `weather.weather`
-- [ ] `staging/stg_github__stargazers.sql` — limpieza de `github.stargazers`
-- [ ] `staging/stg_github__branches.sql` — limpieza de `github.branches`
+- [x] `staging/stg_weather__forecast.sql` — limpieza de `weather.weather` (PASS)
+- [x] `staging/stg_github__stargazers.sql` — limpieza de `github.stargazers` (PASS)
+- [x] `staging/stg_github__branches.sql` — limpieza de `github.branches` (PASS)
 
 ### 3. Archivo `_sources.yml`
-- [ ] Source `weather` apuntando al schema `weather`, tabla `weather` _(actualmente apunta a `raw/main/pokemon`)_
-- [ ] Source `github` apuntando al schema `github`, tablas `branches` y `stargazers`
+- [x] Source `weather` apuntando al schema `weather`, tabla `weather`
+- [x] Source `github` apuntando al schema `github`, tablas `branches` y `stargazers`
 
 ### 4. Modelo intermediate (mínimo 1)
 - [ ] `intermediate/int_github_actividad.sql` — join de stargazers + branches enriquecido _(actualmente existe `int_pokemon_with_types.sql`)_
@@ -81,8 +81,8 @@ mi_proyecto_dbt/
 | Proyecto dbt init     | Listo      |
 | profiles.yml          | Listo      |
 | dbt debug             | Listo      |
-| _sources.yml          | Pendiente  |
-| Modelos staging       | Pendiente  |
+| _sources.yml          | Listo      |
+| Modelos staging       | Listo      |
 | Modelo intermediate   | Pendiente  |
 | Modelos mart          | Pendiente  |
 | DAG screenshot        | Pendiente  |
