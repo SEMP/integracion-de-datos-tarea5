@@ -184,8 +184,6 @@ FROM {{ ref('obt_pronostico') }}
 WHERE parte_dia NOT IN ('d', 'n')
 ```
 
-Este ciclo — tests que descubren problemas de tipo → corrección en staging → tests que pasan limpiamente — es un ejemplo del valor que aporta la capa de testing en un proyecto dbt.
-
 === `assert_temperatura_rango_valido`
 
 Valida que la temperatura mínima nunca supere a la máxima en ningún intervalo del pronóstico. Es una regla de negocio meteorológica fundamental.
@@ -205,7 +203,36 @@ PASS=2  WARN=0  ERROR=0  SKIP=0  TOTAL=2
 
 == Documentación de modelos y columnas
 
-_Pendiente._
+La documentación se declara en los archivos `_models.yml` de cada capa mediante los campos `description` a nivel de modelo y de columna. dbt la incorpora al catálogo generado por `dbt docs generate`, haciéndola navegable desde el DAG.
+
+=== Staging
+
+Cada modelo documenta su propósito, la fuente cruda que consume y las particularidades de tipo heredadas de Airbyte.
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Modelo*], [*Descripción*]),
+  [`stg_weather__forecast`], [Limpieza de `weather.weather`. Extrae campos de fecha/hora, desanida structs y normaliza tipos JSON. Columnas clave: `dt_unix` (PK), `fecha`, `parte_dia`, `temperatura_c`, `humedad_pct`, `prob_precipitacion`.],
+  [`stg_github__stargazers`], [Limpieza de `github.stargazers`. Expone datos del usuario y fecha del evento de estrella. Columnas clave: `usuario_github_id` (PK), `usuario_login`, `repositorio_nombre_completo`, `starred_at`.],
+  [`stg_github__branches`], [Limpieza de `github.branches`. Expone nombre, SHA del commit y estado de protección de cada rama. Columnas clave: `rama_nombre` (PK), `repositorio_nombre_completo`, `rama_commit_sha`.],
+)
+
+=== Intermediate
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Modelo*], [*Descripción*]),
+  [`int_github_actividad`], [Une `stg_github__stargazers` con `stg_github__branches` mediante LEFT JOIN sobre `repositorio_nombre_completo`. Deriva `repositorio_propietario` y `repositorio_nombre` partiendo el nombre completo por `/`. Columnas clave: `usuario_github_id`, `repositorio_nombre_completo`, `repositorio_propietario`, `repositorio_nombre`.],
+)
+
+=== Marts
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Modelo*], [*Descripción*]),
+  [`obt_pronostico`], [OBT del pronóstico meteorológico. Aplana todos los atributos de `stg_weather__forecast` y agrega `pronostico_id` como PK surrogate. Materializada como tabla en MotherDuck. Columnas clave: `pronostico_id` (PK), `fecha`, `parte_dia`, `ciudad`, `pais`, `temperatura_c`, `humedad_pct`, `prob_precipitacion`.],
+  [`obt_github_actividad`], [OBT de actividad GitHub. Combina evento de estrella, datos del usuario y rama principal del repositorio. Agrega `estrella_id` como PK surrogate. Materializada como tabla en MotherDuck. Columnas clave: `estrella_id` (PK), `usuario_login`, `repositorio_nombre_completo`, `rama_principal_nombre`, `starred_at`.],
+)
 
 == DAG con documentación generada
 
