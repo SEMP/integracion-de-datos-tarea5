@@ -106,14 +106,14 @@ models:
 
 === Resultado
 
-Los 27 tests genéricos pasaron exitosamente con `dbt test --no-partial-parse`:
+Los tests genéricos pasaron exitosamente. El resultado consolidado con todos los tests del proyecto (genéricos + dbt-expectations + singular) ejecutando `dbt test`:
 
 ```
-Finished running 27 data tests in 29.43s.
-PASS=27  WARN=0  ERROR=0  SKIP=0  TOTAL=27
+Finished running 32 data tests in 13.75s.
+PASS=32  WARN=0  ERROR=0  SKIP=0  TOTAL=32
 ```
 
-Nota: la columna `parte_dia` (valores `'d'`/`'n'`) proviene de un struct de Airbyte y se almacena como tipo `UNION` en MotherDuck, lo que hace incompatible el test `accepted_values` con comparaciones directas de strings. Se aplicó el test sobre `pais` (tipo `VARCHAR` garantizado por ser un literal en el modelo de staging), que valida que todos los registros corresponden a Paraguay (`'PY'`).
+Nota: la columna `parte_dia` proviene del campo JSON `sys.pod` almacenado por Airbyte (visible como `{"pod":"n"}` en MotherDuck). El test `accepted_values` genérico no puede aplicarse directamente sobre columnas de tipo JSON porque DuckDB intenta parsear los valores literales `'d'`/`'n'` como JSON, fallando con un error de conversión. Se aplicó `accepted_values` sobre `pais` (tipo `VARCHAR` garantizado por ser un literal en el staging), y la validación de `parte_dia` se resuelve mediante un singular test con `json_extract_string`.
 
 == Tests de dbt-expectations
 
@@ -157,7 +157,38 @@ Se verificó que `prob_precipitacion` en `obt_pronostico` siempre esté en el ra
 
 == Singular tests
 
-_Pendiente._
+Los singular tests son archivos `.sql` en `tests/` que implementan reglas de negocio personalizadas. dbt los ejecuta como consultas: el test pasa si la consulta retorna 0 filas (no hay violaciones).
+
+=== `assert_parte_dia_valida`
+
+Valida que `parte_dia` en `obt_pronostico` solo contenga los valores `'d'` (día) o `'n'` (noche) definidos por la API de OpenWeather.
+
+Este test no pudo implementarse como `accepted_values` genérico en el `_models.yml` porque Airbyte almacena el campo `sys` de OpenWeather como columna de tipo `JSON` en MotherDuck (visible como `{"pod":"n"}`). Al acceder `sys.pod` en el modelo de staging, DuckDB retorna un valor de tipo `JSON`, y compararlo directamente con strings planos falla con un error de conversión JSON.
+
+El singular test resuelve esto usando `json_extract_string` para extraer el valor real sin las comillas que agrega la serialización JSON de DuckDB:
+
+```sql
+SELECT *
+FROM {{ ref('obt_pronostico') }}
+WHERE json_extract_string(parte_dia, '$') NOT IN ('d', 'n')
+```
+
+=== `assert_temperatura_rango_valido`
+
+Valida que la temperatura mínima nunca supere a la máxima en ningún intervalo del pronóstico. Es una regla de negocio meteorológica fundamental.
+
+```sql
+SELECT *
+FROM {{ ref('obt_pronostico') }}
+WHERE temp_min_c > temp_max_c
+```
+
+=== Resultado
+
+```
+Finished running 2 data tests in 28.48s.
+PASS=2  WARN=0  ERROR=0  SKIP=0  TOTAL=2
+```
 
 == Documentación de modelos y columnas
 

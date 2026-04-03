@@ -28,9 +28,9 @@ Todos los tests deben pasar con `dbt build`.
 - [x] `expect_table_row_count_to_be_between` en `stg_github__stargazers` (1–100 filas)
 - [x] `expect_column_values_to_be_between` en `obt_pronostico.prob_precipitacion` (0–1)
 
-### 4. Singular tests personalizados (mínimo 2)
-- [ ] Regla de negocio personalizada #1 en `tests/`
-- [ ] Regla de negocio personalizada #2 en `tests/`
+### 4. Singular tests personalizados (mínimo 2) — PASS=2
+- [x] `tests/assert_parte_dia_valida.sql` — valida que `parte_dia` sea `'"d"'` o `'"n"'` (con CAST a VARCHAR por tipo UNION)
+- [x] `tests/assert_temperatura_rango_valido.sql` — valida que `temp_min_c <= temp_max_c`
 
 ### 5. Documentación de modelos y columnas clave
 - [x] Descripciones de modelos y columnas en `staging/_models.yml`
@@ -52,7 +52,7 @@ Todos los tests deben pasar con `dbt build`.
 | intermediate | `relationships` | Generic | ✅ |
 | marts | `accepted_values` en categorías | Generic | ✅ |
 | marts | `expect_column_values_to_be_between` | dbt-expectations | ✅ |
-| `tests/` | Regla de negocio personalizada | Singular | ⬜ |
+| `tests/` | Regla de negocio personalizada | Singular | ✅ |
 
 ---
 
@@ -63,7 +63,7 @@ Todos los tests deben pasar con `dbt build`.
 | dbt-expectations instalado | Listo |
 | Tests genéricos (≥5) | Listo — 27 tests, PASS=27 |
 | Tests dbt-expectations (≥3) | Listo — 3 tests agregados |
-| Singular tests (≥2) | Pendiente |
+| Singular tests (≥2) | Listo — PASS=2 |
 | Documentación modelos/columnas | Listo — descripciones en los 3 `_models.yml` |
 | DAG con docs generado | Pendiente |
 | `dbt build` todo en PASS | Pendiente (confirmar tras singular tests) |
