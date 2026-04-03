@@ -232,11 +232,154 @@ SELECT * FROM renamed
 
 == Modelo intermediate
 
-_En construcción._
+La capa intermediate aplica lógica de negocio y combina modelos de staging. El modelo `int_github_actividad` une `stg_github__stargazers` con `stg_github__branches` mediante un `LEFT JOIN` sobre `repositorio_nombre_completo`, y deriva las columnas `repositorio_propietario` y `repositorio_nombre` partiendo el nombre completo por `/`.
+
+```sql
+WITH stargazers AS
+(
+    SELECT *
+    FROM {{ ref('stg_github__stargazers') }}
+),
+
+branches AS
+(
+    SELECT *
+    FROM {{ ref('stg_github__branches') }}
+),
+
+joined AS
+(
+    SELECT
+        -- evento estrella
+        stargazers_t.starred_at,
+        stargazers_t.fecha,
+        stargazers_t.anio,
+        stargazers_t.mes,
+        stargazers_t.dia,
+
+        -- usuario
+        stargazers_t.usuario_github_id,
+        stargazers_t.usuario_login,
+        stargazers_t.usuario_tipo,
+        stargazers_t.usuario_es_admin,
+        stargazers_t.usuario_perfil_url,
+        stargazers_t.usuario_avatar_url,
+
+        -- repositorio
+        stargazers_t.repositorio_nombre_completo,
+        SPLIT_PART(stargazers_t.repositorio_nombre_completo, '/', 1) AS repositorio_propietario,
+        SPLIT_PART(stargazers_t.repositorio_nombre_completo, '/', 2) AS repositorio_nombre,
+
+        -- rama principal
+        branches_t.rama_nombre             AS rama_principal_nombre,
+        branches_t.rama_commit_sha         AS rama_principal_sha,
+        branches_t.rama_protegida          AS rama_principal_protegida
+
+    FROM stargazers AS stargazers_t
+    LEFT JOIN branches AS branches_t
+        ON stargazers_t.repositorio_nombre_completo = branches_t.repositorio_nombre_completo
+)
+
+SELECT * FROM joined
+```
 
 == Modelos mart
 
-_En construcción._
+La capa mart expone las tablas finales listas para consumo analítico. Se eligió el modelo *OBT (One Big Table)* dado el bajo volumen de datos (40 filas para weather, 1 para GitHub) y la ausencia de redundancia real a esa escala. Ambos modelos se materializan como `table`.
+
+=== `obt_pronostico`
+
+Tabla única de 32 columnas que aplana todos los atributos del pronóstico meteorológico. Consume directamente `stg_weather__forecast` y agrega `pronostico_id` como clave primaria vía `ROW_NUMBER()`.
+
+```sql
+{{ config(materialized='table') }}
+
+WITH forecast AS
+(
+    SELECT *
+    FROM {{ ref('stg_weather__forecast') }}
+),
+
+final AS
+(
+    SELECT
+        ROW_NUMBER() OVER () AS pronostico_id,
+        dt_unix,
+        dt_txt,
+        fecha,
+        hora,
+        anio,
+        mes,
+        dia,
+        parte_dia,
+        latitud,
+        longitud,
+        ciudad,
+        pais,
+        condicion_codigo,
+        condicion_principal,
+        condicion_descripcion,
+        condicion_icono,
+        temperatura_c,
+        sensacion_termica_c,
+        temp_min_c,
+        temp_max_c,
+        humedad_pct,
+        presion_hpa,
+        presion_mar_hpa,
+        presion_suelo_hpa,
+        visibilidad_m,
+        velocidad_viento_ms,
+        dir_viento_deg,
+        rafaga_viento_ms,
+        cobertura_nubes_pct,
+        prob_precipitacion,
+        lluvia_3h_mm
+    FROM forecast
+)
+
+SELECT * FROM final
+```
+
+=== `obt_github_actividad`
+
+Tabla única de 18 columnas que combina los datos de la estrella, el usuario y la rama principal del repositorio. Consume `int_github_actividad` y agrega `estrella_id` como clave primaria.
+
+```sql
+{{ config(materialized='table') }}
+
+WITH actividad AS
+(
+    SELECT *
+    FROM {{ ref('int_github_actividad') }}
+),
+
+final AS
+(
+    SELECT
+        ROW_NUMBER() OVER () AS estrella_id,
+        starred_at,
+        fecha,
+        anio,
+        mes,
+        dia,
+        usuario_login,
+        usuario_github_id,
+        usuario_tipo,
+        usuario_es_admin,
+        usuario_perfil_url,
+        usuario_avatar_url,
+        repositorio_nombre_completo,
+        repositorio_propietario,
+        repositorio_nombre,
+        rama_principal_nombre,
+        rama_principal_sha,
+        rama_principal_protegida
+    FROM actividad
+)
+
+SELECT * FROM final
+```
 
 == DAG del proyecto
 

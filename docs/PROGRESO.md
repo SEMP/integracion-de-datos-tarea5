@@ -26,13 +26,12 @@
 - [x] Source `github` apuntando al schema `github`, tablas `branches` y `stargazers`
 
 ### 4. Modelo intermediate (mínimo 1)
-- [ ] `intermediate/int_github_actividad.sql` — join de stargazers + branches enriquecido _(actualmente existe `int_pokemon_with_types.sql`)_
+- [x] `intermediate/int_github_actividad.sql` — join de stargazers + branches enriquecido (PASS)
 
 ### 5. Modelo mart (mínimo 1, dimensional u OBT)
-- [ ] Opción elegida: **OBT** por simplicidad dado el bajo volumen de datos
-  - [ ] `marts/obt_pronostico.sql` — tabla única para análisis del pronóstico weather
-  - [ ] `marts/obt_github_actividad.sql` — tabla única para actividad GitHub
-  - _(los archivos Pokémon existentes serán reemplazados)_
+- [x] Opción elegida: **OBT** por simplicidad dado el bajo volumen de datos
+  - [x] `marts/obt_pronostico.sql` — tabla única para análisis del pronóstico weather (PASS)
+  - [x] `marts/obt_github_actividad.sql` — tabla única para actividad GitHub (PASS)
 
 ### 6. Captura del DAG
 - [ ] `dbt docs generate` ejecutado
@@ -83,7 +82,7 @@ mi_proyecto_dbt/
 | dbt debug             | Listo      |
 | _sources.yml          | Listo      |
 | Modelos staging       | Listo      |
-| Modelo intermediate   | Pendiente  |
-| Modelos mart          | Pendiente  |
+| Modelo intermediate   | Listo      |
+| Modelos mart          | Listo      |
 | DAG screenshot        | Pendiente  |
 | Tarea5.typ            | Pendiente  |
