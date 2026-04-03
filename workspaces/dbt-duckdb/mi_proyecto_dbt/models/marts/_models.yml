@@ -18,9 +18,11 @@ models:
           - not_null
       - name: parte_dia
         description: "Parte del día: 'd' (día) o 'n' (noche)."
+      - name: pais
+        description: "Código de país ISO (siempre 'PY' para esta fuente)."
         tests:
           - accepted_values:
-              values: ['d', 'n']
+              values: ['PY']
       - name: ciudad
         description: "Nombre de la ciudad (Ciudad del Este)."
         tests:

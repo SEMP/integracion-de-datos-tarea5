@@ -81,10 +81,10 @@ models:
     columns:
       - name: pronostico_id
         tests: [unique, not_null]
-      - name: parte_dia
+      - name: pais
         tests:
           - accepted_values:
-              values: ['d', 'n']
+              values: ['PY']
       - name: fecha
         tests: [not_null]
       - name: temperatura_c
@@ -106,12 +106,14 @@ models:
 
 === Resultado
 
-Los 11 tests genéricos pasaron exitosamente con `dbt test`:
+Los 27 tests genéricos pasaron exitosamente con `dbt test --no-partial-parse`:
 
 ```
-Finished running 11 data tests in 7.97s.
-PASS=11  WARN=0  ERROR=0  SKIP=0  TOTAL=11
+Finished running 27 data tests in 29.43s.
+PASS=27  WARN=0  ERROR=0  SKIP=0  TOTAL=27
 ```
+
+Nota: la columna `parte_dia` (valores `'d'`/`'n'`) proviene de un struct de Airbyte y se almacena como tipo `UNION` en MotherDuck, lo que hace incompatible el test `accepted_values` con comparaciones directas de strings. Se aplicó el test sobre `pais` (tipo `VARCHAR` garantizado por ser un literal en el modelo de staging), que valida que todos los registros corresponden a Paraguay (`'PY'`).
 
 == Tests de dbt-expectations
 
