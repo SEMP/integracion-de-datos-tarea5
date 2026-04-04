@@ -1,7 +1,7 @@
 services:
   mia-mysql:
     image: mysql:8.0
-    container_name: mia_mysql
+    container_name: mia-mysql
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD
@@ -15,9 +15,9 @@ services:
     volumes:
       - mia-mysql_data:/var/lib/mysql:rw
       - ./initdb:/docker-entrypoint-initdb.d:ro
-      - ${CSV_DIR}:/csv:ro
+      - ${CSV_DIR}:/csv
       - /etc/localtime:/etc/localtime:ro
-    command: --default-authentication-plugin=mysql_native_password --local-infile=1
+    command: --default-authentication-plugin=mysql_native_password --local-infile=1 --secure-file-priv=/csv
 
   mia-phpmyadmin:
     image: phpmyadmin:latest

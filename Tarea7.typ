@@ -28,12 +28,12 @@ El dataset proviene de *Maven Analytics Data Playground* y contiene la base de d
 #table(
   columns: (auto, auto, 1fr),
   table.header([*Tabla*], [*Registros*], [*Descripción*]),
-  [`website_sessions`],    [450K], [Sesiones de usuarios con datos UTM, device y referer],
-  [`website_pageviews`],   [1.1M], [Páginas visitadas por sesión],
-  [`orders`],              [32K],  [Órdenes realizadas con precio y costo],
-  [`order_items`],         [54K],  [Items individuales dentro de cada orden],
-  [`order_item_refunds`],  [800],  [Reembolsos procesados],
-  [`products`],            [4],    [Catálogo de productos],
+  [`website_sessions`],    [472,871],  [Sesiones de usuarios con datos UTM, device y referer],
+  [`website_pageviews`],   [1,188,124],[Páginas visitadas por sesión],
+  [`orders`],              [32,313],   [Órdenes realizadas con precio y costo],
+  [`order_items`],         [40,025],   [Items individuales dentro de cada orden],
+  [`order_item_refunds`],  [1,731],    [Reembolsos procesados],
+  [`products`],            [4],        [Catálogo de productos],
 )
 
 === Contenedor Docker
@@ -79,13 +79,6 @@ La opción `--default-authentication-plugin=mysql_native_password` en MySQL gara
 
 phpMyAdmin se pre-configura automáticamente con `PMA_HOST`, `PMA_USER` y `PMA_PASSWORD`, por lo que no requiere ingresar credenciales manualmente al acceder a `localhost:8095`. El puerto 8095 se eligió para evitar conflicto con `dbt docs serve`, que usa 8080 por defecto.
 
-=== Levantar los contenedores
-
-```bash
-cd workspaces/maven-fuzzy/mysql-container
-docker compose up -d
-```
-
 === Schema de la base de datos
 
 El schema se declara en `initdb/01_schema.sql` siguiendo los tipos de datos del modelo original. MySQL ejecuta este script automáticamente al primer arranque del contenedor.
@@ -103,7 +96,7 @@ El schema se declara en `initdb/01_schema.sql` siguiendo los tipos de datos del 
 
 === Carga de datos
 
-Los CSVs se montan en `/csv` dentro del contenedor a través del volumen `${CSV_DIR}:/csv:ro`. El script `initdb/02_load_data.sql` usa `LOAD DATA INFILE` para cargar cada archivo:
+Los CSVs se montan en `/csv` dentro del contenedor a través del volumen `${CSV_DIR}:/csv`. El script `initdb/02_load_data.sql` usa `LOAD DATA INFILE` para cargar cada archivo:
 
 ```sql
 LOAD DATA INFILE '/csv/website_sessions.csv'
@@ -131,6 +124,32 @@ Al primer arranque MySQL ejecuta los scripts de `initdb/` en orden numérico: pr
 ```bash
 docker logs -f mia_mysql
 ```
+
+=== Verificación
+
+Una vez que el contenedor está corriendo, se puede verificar la carga desde phpMyAdmin (`localhost:8095`) ejecutando:
+
+```sql
+SELECT 'products'            AS tabla, COUNT(*) AS registros FROM products
+UNION ALL SELECT 'orders',                        COUNT(*) FROM orders
+UNION ALL SELECT 'order_items',                   COUNT(*) FROM order_items
+UNION ALL SELECT 'order_item_refunds',            COUNT(*) FROM order_item_refunds
+UNION ALL SELECT 'website_sessions',              COUNT(*) FROM website_sessions
+UNION ALL SELECT 'website_pageviews',             COUNT(*) FROM website_pageviews;
+```
+
+Resultado obtenido:
+
+#table(
+  columns: (1fr, auto),
+  table.header([*Tabla*], [*Registros*]),
+  [`products`],           [4],
+  [`orders`],             [32,313],
+  [`order_items`],        [40,025],
+  [`order_item_refunds`], [1,731],
+  [`website_sessions`],   [472,871],
+  [`website_pageviews`],  [1,188,124],
+)
 
 == Paso 2: Configurar Airbyte
 

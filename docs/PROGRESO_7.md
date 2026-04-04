@@ -16,8 +16,9 @@ MySQL -> Airbyte -> MotherDuck -> dbt -> Metabase, orquestado con Prefect.
 - [x] `initdb/01_schema.sql` — crea las 6 tablas con tipos exactos del modelo de datos
 - [x] `initdb/02_load_data.sql` — carga los CSVs con `LOAD DATA INFILE` desde `/csv`
 - [x] `.gitignore` corregido: eliminado `*.env`, mantenido `.env` y `.env.*` (permite versionar `example.env`)
-- [ ] `docker compose up -d` ejecutado y contenedor corriendo
-- [ ] Datos verificados en phpMyAdmin (`localhost:8095`)
+- [x] `docker compose up -d` ejecutado y contenedor corriendo
+- [x] Datos verificados en phpMyAdmin (`localhost:8095`): products=4, orders=32313, order_items=40025, order_item_refunds=1731, website_sessions=472871, website_pageviews=1188124
+- Nota: volumen CSV montado sin `:ro` — el entrypoint de MySQL necesita hacer `chown` en el directorio; los archivos no son modificados.
 
 ### 1. Airbyte: Connection MySQL -> MotherDuck
 - [ ] Conexión MySQL (Maven Fuzzy Factory) configurada en Airbyte
@@ -116,7 +117,7 @@ workspaces/maven-fuzzy/
 
 | Componente | Estado |
 |---|---|
-| MySQL con Docker (schema + carga CSV) | Listo — pendiente verificar con `docker compose up` |
+| MySQL con Docker (schema + carga CSV) | Listo -- 1,735,166 registros totales en 6 tablas |
 | Airbyte MySQL -> MotherDuck | Pendiente |
 | dbt modelos staging | Pendiente |
 | dbt modelos mart | Pendiente |

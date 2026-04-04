@@ -103,6 +103,15 @@ Los archivos CSV del dataset se obtienen desde:
 
 Descargar el `.zip`, descomprimir y colocar los CSVs en una carpeta local. Configurar la ruta en `workspaces/maven-fuzzy/mysql-container/.env` (ver `example.env`).
 
+| Tabla | Registros |
+|---|---|
+| `website_sessions` | 472,871 |
+| `website_pageviews` | 1,188,124 |
+| `orders` | 32,313 |
+| `order_items` | 40,025 |
+| `order_item_refunds` | 1,731 |
+| `products` | 4 |
+
 ---
 
 ## Ejecutar el proyecto
