@@ -87,6 +87,24 @@ Base de datos MotherDuck `md:airbyte_curso`, cargada con Airbyte en clases anter
 | `github.branches` | 1 | Rama principal de SEMP/lib-utilidades |
 | `github.stargazers` | 1 | Estrella dada al repositorio SEMP/lib-utilidades |
 
+---
+
+## Tarea 7 — Orquestación y Visualización
+
+### Seguimiento
+
+[`docs/PROGRESO_7.md`](docs/PROGRESO_7.md)
+
+### Dataset: Maven Fuzzy Factory
+
+Los archivos CSV del dataset se obtienen desde:
+
+**[Maven Analytics Data Playground — Toy Store E-Commerce Database](https://mavenanalytics.io/data-playground/toy-store-e-commerce-database)**
+
+Descargar el `.zip`, descomprimir y colocar los CSVs en una carpeta local. Configurar la ruta en `workspaces/maven-fuzzy/mysql-container/.env` (ver `example.env`).
+
+---
+
 ## Ejecutar el proyecto
 
 **1. Configurar el token de MotherDuck**

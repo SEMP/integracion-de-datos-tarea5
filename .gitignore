@@ -11,7 +11,6 @@ logs/
 # Secrets / env (match anywhere in the tree)
 .env
 .env.*
-*.env
 .envrc
 .direnv/
 set_env.sh
