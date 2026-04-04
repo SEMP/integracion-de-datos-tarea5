@@ -21,11 +21,12 @@ MySQL -> Airbyte -> MotherDuck -> dbt -> Metabase, orquestado con Prefect.
 - Nota: volumen CSV montado sin `:ro` — el entrypoint de MySQL necesita hacer `chown` en el directorio; los archivos no son modificados.
 
 ### 1. Airbyte: Connection MySQL -> MotherDuck
-- [ ] Conexión MySQL (Maven Fuzzy Factory) configurada en Airbyte
-- [ ] Conexión MotherDuck configurada en Airbyte
-- [ ] Connection MySQL -> MotherDuck ejecutando correctamente
-- [ ] Tablas cargadas en `md:airbyte_curso`: `website_sessions`, `website_pageviews`, `orders`, `order_items`, `order_item_refunds`, `products`
-- [ ] `AIRBYTE_CONNECTION_ID` obtenido de la URL de Airbyte
+- [x] Source `MySQL_Maven-Fuzzy-Factory` configurado (host: IP ZeroTier notebook Linux, port: 3306, db: `maven_fuzzy_factory`, user: `airbyte`)
+- [x] Destination `MotherDuck_maven_fuzzy` configurado (`md:airbyte_curso`, schema: `maven_fuzzy`)
+- [x] Connection creada: Full refresh | Overwrite, schedule Manual, 6 tablas seleccionadas
+- [x] `AIRBYTE_CONNECTION_ID`: `39cdf568-8a26-4c2e-95fc-b6bc0dc989a4`
+- [x] Sync completado y tablas disponibles en MotherDuck (`airbyte_curso.maven_fuzzy.*`)
+- Nota: schema destino es `maven_fuzzy` (no `main` como en el repo del profesor) — requiere ajustar `schema: maven_fuzzy` en `_sources.yml` de dbt
 
 ### 2. dbt: Modelos en `main_staging` y `main_marts`
 - [ ] Workspace `workspaces/maven-fuzzy/` configurado (copiado/adaptado del repo del profesor)
@@ -118,7 +119,7 @@ workspaces/maven-fuzzy/
 | Componente | Estado |
 |---|---|
 | MySQL con Docker (schema + carga CSV) | Listo -- 1,735,166 registros totales en 6 tablas |
-| Airbyte MySQL -> MotherDuck | Pendiente |
+| Airbyte MySQL -> MotherDuck | Listo -- sync completado |
 | dbt modelos staging | Pendiente |
 | dbt modelos mart | Pendiente |
 | Prefect pipeline | Pendiente |

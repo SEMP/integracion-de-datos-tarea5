@@ -153,6 +153,45 @@ Resultado obtenido:
 
 == Paso 2: Configurar Airbyte
 
+Se configuraron tres componentes en Airbyte (`localhost:8000`):
+
+=== Source: MySQL
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Campo*], [*Valor*]),
+  [Nombre],    [`MySQL_Maven-Fuzzy-Factory`],
+  [Host],      [IP ZeroTier de la notebook Linux],
+  [Port],      [`3306`],
+  [Database],  [`maven_fuzzy_factory`],
+  [Username],  [`airbyte`],
+)
+
+=== Destination: MotherDuck
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Campo*], [*Valor*]),
+  [Nombre],            [`MotherDuck_maven_fuzzy`],
+  [Database],          [`md:airbyte_curso`],
+  [Default schema],    [`maven_fuzzy`],
+)
+
+=== Connection
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Campo*], [*Valor*]),
+  [Source],              [`MySQL_Maven-Fuzzy-Factory`],
+  [Destination],         [`MotherDuck_maven_fuzzy`],
+  [Sync mode],           [Full refresh \| Overwrite],
+  [Schedule],            [Manual (orquestado por Prefect)],
+  [Tablas sincronizadas],[`website_sessions`, `website_pageviews`, `orders`, `order_items`, `order_item_refunds`, `products`],
+  [Connection ID],       [`39cdf568-8a26-4c2e-95fc-b6bc0dc989a4`],
+)
+
+Las tablas se sincronizan al schema `airbyte_curso.maven_fuzzy` en MotherDuck. El schedule se configura como Manual dado que la ejecución será orquestada por Prefect. El primer sync completó exitosamente, dejando las 6 tablas disponibles en MotherDuck.
+
 == Paso 3: Modelos dbt
 
 == Paso 4: Orquestación con Prefect
