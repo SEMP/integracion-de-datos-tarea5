@@ -101,7 +101,7 @@ Los archivos CSV del dataset se obtienen desde:
 
 **[Maven Analytics Data Playground — Toy Store E-Commerce Database](https://mavenanalytics.io/data-playground/toy-store-e-commerce-database)**
 
-Descargar el `.zip`, descomprimir y colocar los CSVs en una carpeta local. Configurar la ruta en `workspaces/maven-fuzzy/mysql-container/.env` (ver `example.env`).
+Descargar el `.zip`, descomprimir y colocar los CSVs en una carpeta local. Configurar la ruta en `workspaces/maven-fuzzy/containers/.env` (ver `example.env`).
 
 | Tabla | Registros |
 |---|---|

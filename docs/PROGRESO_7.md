@@ -11,7 +11,7 @@ MySQL -> Airbyte -> MotherDuck -> dbt -> Metabase, orquestado con Prefect.
 
 ### 0. MySQL con Docker: base de datos fuente
 - [x] Dataset descargado desde Maven Analytics Data Playground (CSV)
-- [x] `docker-compose.yaml` con MySQL 8.0 + phpMyAdmin en `workspaces/maven-fuzzy/mysql-container/`
+- [x] `docker-compose.yaml` con MySQL 8.0 + phpMyAdmin en `workspaces/maven-fuzzy/containers/`
 - [x] `example.env` con todas las variables requeridas (`MYSQL_*`, `PMA_PORT`, `CSV_DIR`)
 - [x] `initdb/01_schema.sql` — crea las 6 tablas con tipos exactos del modelo de datos
 - [x] `initdb/02_load_data.sql` — carga los CSVs con `LOAD DATA INFILE` desde `/csv`

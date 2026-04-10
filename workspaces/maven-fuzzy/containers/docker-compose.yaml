@@ -36,6 +36,25 @@ services:
     depends_on:
       - mia-mysql
 
+  mia-metabase:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: metabase-duckdb:latest
+    container_name: mia-metabase
+    restart: unless-stopped
+    environment:
+      - MB_PLUGINS_DIR=${MB_PLUGINS_DIR:-/plugins}
+    ports:
+      - "${MB_PORT}:3000"
+    expose:
+      - "3000"
+    volumes:
+      - mia-metabase_data:/metabase.db
+      - /etc/localtime:/etc/localtime:ro
+
 volumes:
   mia-mysql_data:
     name: mia-mysql_data
+  mia-metabase_data:
+    name: mia-metabase_data

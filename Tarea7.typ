@@ -38,11 +38,11 @@ El dataset proviene de *Maven Analytics Data Playground* y contiene la base de d
 
 === Contenedor Docker
 
-Se levanta MySQL 8.0 junto a phpMyAdmin mediante `docker-compose.yaml` en `workspaces/maven-fuzzy/mysql-container/`. Las credenciales se leen desde un archivo `.env` (no versionado); el archivo `example.env` sirve de plantilla:
+Se levanta MySQL 8.0 junto a phpMyAdmin mediante `docker-compose.yaml` en `workspaces/maven-fuzzy/containers/`. Las credenciales se leen desde un archivo `.env` (no versionado); el archivo `example.env` sirve de plantilla:
 
 ```bash
 # Crear .env a partir de la plantilla
-cd workspaces/maven-fuzzy/mysql-container
+cd workspaces/maven-fuzzy/containers
 cp example.env .env
 # Editar .env con las credenciales reales
 ```
@@ -132,7 +132,7 @@ La variable `CSV_DIR` en `.env` apunta a la carpeta local donde se descomprimió
 === Levantar los contenedores
 
 ```bash
-cd workspaces/maven-fuzzy/mysql-container
+cd workspaces/maven-fuzzy/containers
 cp example.env .env
 # Editar .env: ajustar CSV_DIR y credenciales
 docker compose up -d
