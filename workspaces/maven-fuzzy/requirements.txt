@@ -1,0 +1,11 @@
+# Pipeline ELT - Maven Fuzzy Factory
+# Probado con Python 3.12
+#
+# Nota: prefect 3.6.x tiene un bug de compatibilidad con fakeredis
+# (FakeConnection removido en fakeredis>=2.26). Usar 3.3.x hasta que se corrija.
+
+dbt-duckdb>=1.7.0
+prefect==3.3.7
+prefect-dbt>=0.4.0
+httpx>=0.27.0
+python-dotenv>=1.0.0
