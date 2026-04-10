@@ -48,31 +48,50 @@ cp example.env .env
 ```
 
 ```yaml
-# docker-compose.yaml (resumen)
 services:
   mia-mysql:
     image: mysql:8.0
+    container_name: mia-mysql
+    restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD
-      - MYSQL_DATABASE       # maven_fuzzy_factory
-      - MYSQL_USER           # airbyte
+      - MYSQL_DATABASE
+      - MYSQL_USER
       - MYSQL_PASSWORD
     ports:
       - "${MYSQL_PORT}:3306"
+    expose:
+      - "3306"
     volumes:
-      - mia-mysql_data:/var/lib/mysql
-      - ./initdb:/docker-entrypoint-initdb.d
+      - mia-mysql_data:/var/lib/mysql:rw
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+      - ${CSV_DIR}:/csv
+      - /etc/localtime:/etc/localtime:ro
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --local-infile=1
+      --secure-file-priv=/csv
 
   mia-phpmyadmin:
     image: phpmyadmin:latest
+    container_name: mia-phpmyadmin
+    restart: unless-stopped
     environment:
       - PMA_HOST=mia-mysql
       - PMA_USER=${MYSQL_USER}
       - PMA_PASSWORD=${MYSQL_PASSWORD}
     ports:
       - "${PMA_PORT}:80"
+    expose:
+      - "80"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     depends_on:
       - mia-mysql
+
+volumes:
+  mia-mysql_data:
+    name: mia-mysql_data
 ```
 
 La opción `--default-authentication-plugin=mysql_native_password` en MySQL garantiza compatibilidad con el conector de Airbyte, que no soporta el plugin `caching_sha2_password` introducido por defecto en MySQL 8.0.
@@ -193,6 +212,91 @@ Se configuraron tres componentes en Airbyte (`localhost:8000`):
 Las tablas se sincronizan al schema `airbyte_curso.maven_fuzzy` en MotherDuck. El schedule se configura como Manual dado que la ejecución será orquestada por Prefect. El primer sync completó exitosamente, dejando las 6 tablas disponibles en MotherDuck.
 
 == Paso 3: Modelos dbt
+
+El proyecto dbt se inicializó en `workspaces/maven-fuzzy/dbt_maven_fuzzy/` con `dbt init`. Los modelos transforman los datos crudos del schema `maven_fuzzy` (cargados por Airbyte) en dos capas:
+
+#table(
+  columns: (auto, auto, 1fr),
+  table.header([*Schema destino*], [*Materialización*], [*Descripción*]),
+  [`maven_fuzzy_staging`], [view],  [Limpieza y estandarización de tablas fuente],
+  [`maven_fuzzy_marts`],   [table], [Modelos analíticos agregados para visualización],
+)
+
+=== Configuración
+
+El archivo `profiles.yml` define la conexión a MotherDuck y el schema base `maven_fuzzy`, que dbt usa como prefijo para generar los nombres de schema destino:
+
+```yaml
+dbt_maven_fuzzy:
+  outputs:
+    dev:
+      type: duckdb
+      path: "md:airbyte_curso"
+      schema: maven_fuzzy
+      motherduck_token: "{{ env_var('MOTHERDUCK_TOKEN') }}"
+  target: dev
+```
+
+El `dbt_project.yml` configura las materializaciones y sufijos de schema:
+
+```yaml
+models:
+  dbt_maven_fuzzy:
+    staging:
+      +materialized: view
+      +schema: staging
+    marts:
+      +materialized: table
+      +schema: marts
+```
+
+Las variables de entorno se configuran con `source set_env.sh` antes de ejecutar dbt (el archivo `set_env.example.sh` sirve de plantilla).
+
+=== Modelos staging
+
+Los modelos staging leen desde `{{ source('raw', ...) }}` apuntando al schema `airbyte_curso.maven_fuzzy`. Cada modelo limpia y tipifica los campos de su tabla fuente.
+
+*Nota sobre campos BINARY(1):* Airbyte serializa las columnas `BINARY(1)` de MySQL (como `is_primary_item` e `is_repeat_session`) como strings base64 en MotherDuck. Los valores posibles son `'MA=='` (0) y `'MQ=='` (1). Los modelos staging convierten estos valores a booleanos comparando directamente el string base64:
+
+```sql
+-- stg_order_items.sql (fragmento)
+oi.is_primary_item = 'MQ==' as is_primary_item
+```
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Modelo*], [*Transformaciones principales*]),
+  [`stg_sessions`],    [Reemplaza `utm_source` null por `'direct'`, convierte `is_repeat_session` de base64 a boolean, agrega truncados de fecha (día, semana, mes, año)],
+  [`stg_orders`],      [Calcula `margin_usd = price_usd - cogs_usd`, agrega truncados de fecha],
+  [`stg_order_items`], [Join con `products` para traer `product_name`, convierte `is_primary_item` de base64 a boolean, calcula margen por ítem],
+  [`stg_pageviews`],   [Selecciona campos relevantes, agrega `pageview_date`],
+  [`stg_refunds`],     [Selecciona campos relevantes, agrega `refund_date`],
+)
+
+=== Modelos marts
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Modelo*], [*Descripción*]),
+  [`obt_orders_enriched`],      [One Big Table: join de órdenes con sesiones, productos, ítems agregados y reembolsos. Incluye campos calculados como `channel_group`, `order_tier` y `net_revenue`],
+  [`fct_daily_sales`],          [Métricas por día: sesiones, órdenes, conversión, revenue, cogs, margen y reembolsos],
+  [`fct_channel_performance`],  [Performance por canal UTM, campaña y device: sesiones, órdenes, conversión, revenue y AOV],
+  [`fct_product_performance`],  [Performance por producto: unidades vendidas, revenue, margen, tasa de reembolso],
+)
+
+=== Ejecución
+
+```bash
+cd workspaces/maven-fuzzy/dbt_maven_fuzzy
+source set_env.sh
+dbt deps
+dbt run
+dbt test
+```
+
+Resultado de `dbt run`: *PASS=9, ERROR=0* (5 views en staging + 4 tables en marts).
+
+Resultado de `dbt test`: *PASS=20, ERROR=0* (tests de unicidad, not_null, valores aceptados y singular test de revenue positivo).
 
 == Paso 4: Orquestación con Prefect
 
