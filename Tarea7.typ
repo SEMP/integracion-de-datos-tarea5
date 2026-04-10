@@ -284,6 +284,15 @@ oi.is_primary_item = 'MQ==' as is_primary_item
   [`fct_product_performance`],  [Performance por producto: unidades vendidas, revenue, margen, tasa de reembolso],
 )
 
+=== DAG
+
+El grafo de dependencias del modelo `obt_orders_enriched` muestra cómo las cinco tablas fuente fluyen a través de los modelos staging antes de consolidarse en el mart:
+
+#figure(
+  image("assets/dag_maven_fuzzy_obt_orders_enriched.png", width: 100%),
+  caption: [DAG de `obt_orders_enriched` generado con `dbt docs`],
+)
+
 === Ejecución
 
 ```bash
