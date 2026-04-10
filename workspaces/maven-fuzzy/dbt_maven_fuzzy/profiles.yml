@@ -1,4 +1,4 @@
-maven_fuzzy_factory:
+dbt_maven_fuzzy:
   outputs:
     dev:
       type: duckdb
