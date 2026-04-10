@@ -309,4 +309,54 @@ Resultado de `dbt test`: *PASS=20, ERROR=0* (tests de unicidad, not_null, valore
 
 == Paso 4: Orquestación con Prefect
 
+El pipeline se orquesta con Prefect 3, que coordina la ejecución secuencial de las tres etapas: sincronización con Airbyte, transformación con dbt y validación con tests.
+
+=== Estructura del pipeline
+
+El flow `ecommerce_pipeline` se define en `workspaces/maven-fuzzy/prefect/ecommerce_pipeline.py` y contiene tres tasks:
+
+#table(
+  columns: (auto, auto, 1fr),
+  table.header([*Task*], [*Nombre*], [*Descripción*]),
+  [1], [`Extract and Load with Airbyte`], [Dispara el sync de Airbyte via API REST y espera hasta que el job termine (polling cada 10s). Reintentos: 2],
+  [2], [`Transform with dbt`],            [Ejecuta `dbt deps` + `dbt run` como subproceso],
+  [3], [`Test with dbt`],                 [Ejecuta `dbt test` como subproceso],
+)
+
+=== Configuración
+
+Las variables de entorno se cargan desde `prefect/.env` (no versionado; `prefect/.env.example` sirve de plantilla):
+
+```bash
+AIRBYTE_HOST=localhost
+AIRBYTE_PORT=8000
+AIRBYTE_USERNAME=airbyte
+AIRBYTE_PASSWORD=password
+AIRBYTE_CONNECTION_ID=39cdf568-8a26-4c2e-95fc-b6bc0dc989a4
+MOTHERDUCK_TOKEN=TU_TOKEN
+```
+
+Las dependencias con versiones fijas están en `workspaces/maven-fuzzy/requirements.txt`. Se usa `prefect==3.3.7` ya que Prefect 3.6.x tiene un bug de compatibilidad con `fakeredis` que impide levantar el servidor.
+
+=== Ejecución
+
+```bash
+# Terminal 1: servidor Prefect
+prefect server start
+
+# Terminal 2: pipeline
+prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
+cd workspaces/maven-fuzzy/prefect
+python ecommerce_pipeline.py
+```
+
+=== Resultado
+
+El pipeline completó exitosamente con las tres tasks en estado `Completed`:
+
+#figure(
+  image("assets/prefect_pipeline_tarea7.png", width: 100%),
+  caption: [Prefect UI — flow run `peach-aardwark` completado],
+)
+
 == Paso 5: Visualización con Metabase
