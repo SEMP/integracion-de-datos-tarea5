@@ -91,9 +91,28 @@ Base de datos MotherDuck `md:airbyte_curso`, cargada con Airbyte en clases anter
 
 ## Tarea 7 — Orquestación y Visualización
 
+### Documento de entrega
+
+[`docs/Tarea-Clase7-Integracion-Datos.pdf`](docs/Tarea-Clase7-Integracion-Datos.pdf)
+
+Generado desde [`Tarea7.typ`](Tarea7.typ) (Typst). Pipeline ELT completo: MySQL → Airbyte → MotherDuck → dbt → Metabase, orquestado con Prefect.
+
 ### Seguimiento
 
 [`docs/PROGRESO_7.md`](docs/PROGRESO_7.md)
+
+### Entregables
+
+| Entregable | Ubicación |
+|---|---|
+| Docker: MySQL + phpMyAdmin + Metabase | `workspaces/maven-fuzzy/containers/` |
+| Schema e initdb | `workspaces/maven-fuzzy/containers/initdb/` |
+| Proyecto dbt | `workspaces/maven-fuzzy/dbt_maven_fuzzy/` |
+| Pipeline Prefect | `workspaces/maven-fuzzy/prefect/ecommerce_pipeline.py` |
+| Captura Prefect UI | `assets/prefect_pipeline_tarea7.png` |
+| Dashboard Metabase (sin filtros) | `assets/dashboard_maven_fuzzy.png` |
+| Dashboard Metabase (filtrado) | `assets/dashboard_maven_fuzzy_filtrado.png` |
+| Configuración conexión DuckDB | `assets/configuracion_metabase_db.png` |
 
 ### Dataset: Maven Fuzzy Factory
 
@@ -112,13 +131,32 @@ Descargar el `.zip`, descomprimir y colocar los CSVs en una carpeta local. Confi
 | `order_item_refunds` | 1,731 |
 | `products` | 4 |
 
+### Modelos dbt
+
+```
+staging/                         # views en maven_fuzzy_staging
+  stg_sessions.sql
+  stg_orders.sql
+  stg_order_items.sql
+  stg_pageviews.sql
+  stg_refunds.sql
+
+marts/                           # tables en maven_fuzzy_marts
+  obt_orders_enriched.sql        # One Big Table — base del dashboard
+  fct_daily_sales.sql
+  fct_channel_performance.sql
+  fct_product_performance.sql
+```
+
+`dbt run`: PASS=9 | `dbt test`: PASS=20
+
 ---
 
 ## Ejecutar el proyecto
 
-**1. Configurar el token de MotherDuck**
+### Tareas 5 y 6 (dbt con MotherDuck)
 
-`set_env.sh` está en `.gitignore` y no se versiona. Crearlo a partir de la plantilla incluida:
+**1. Configurar el token de MotherDuck**
 
 ```bash
 cd workspaces/dbt-duckdb/mi_proyecto_dbt
@@ -132,7 +170,6 @@ cp set_env.example.sh set_env.sh
 cd workspaces/dbt-duckdb
 source .venv/bin/activate
 source mi_proyecto_dbt/set_env.sh
-
 cd mi_proyecto_dbt
 dbt deps
 dbt run
@@ -142,4 +179,41 @@ dbt run
 
 ```bash
 dbt build
+```
+
+### Tarea 7 (Pipeline completo ELT)
+
+**1. Levantar infraestructura Docker**
+
+```bash
+cd workspaces/maven-fuzzy/containers
+cp example.env .env
+# Editar .env: ajustar CSV_DIR (ruta a los CSVs de Maven Fuzzy) y credenciales
+docker compose up -d
+```
+
+**2. Ejecutar dbt**
+
+```bash
+cd workspaces/maven-fuzzy/dbt_maven_fuzzy
+cp set_env.example.sh set_env.sh
+# Editar set_env.sh con MOTHERDUCK_TOKEN real
+source set_env.sh
+dbt deps
+dbt run
+dbt test
+```
+
+**3. Ejecutar pipeline Prefect**
+
+```bash
+# Terminal 1
+prefect server start
+
+# Terminal 2
+prefect config set PREFECT_API_URL=http://127.0.0.1:4200/api
+cd workspaces/maven-fuzzy/prefect
+cp .env.example .env
+# Editar .env con credenciales reales
+python ecommerce_pipeline.py
 ```
