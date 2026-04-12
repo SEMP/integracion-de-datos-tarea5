@@ -8,6 +8,7 @@
   logo: image("assets/fpuna_logo_institucional.svg", width: 2cm),
   language: "es",
   compact-mode: true,
+  heading-font: "Lato",
   it
 )
 #v(-8em)
