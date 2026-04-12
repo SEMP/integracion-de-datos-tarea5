@@ -45,16 +45,21 @@ services:
     restart: unless-stopped
     environment:
       - MB_PLUGINS_DIR=${MB_PLUGINS_DIR:-/plugins}
+      - MB_DB_TYPE=mysql
+      - MB_DB_DBNAME=${MB_DB_DBNAME:-metabase}
+      - MB_DB_PORT=3306
+      - MB_DB_USER=${MYSQL_USER}
+      - MB_DB_PASS=${MYSQL_PASSWORD}
+      - MB_DB_HOST=mia-mysql
     ports:
       - "${MB_PORT}:3000"
     expose:
       - "3000"
     volumes:
-      - mia-metabase_data:/metabase.db
       - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - mia-mysql
 
 volumes:
   mia-mysql_data:
     name: mia-mysql_data
-  mia-metabase_data:
-    name: mia-metabase_data
