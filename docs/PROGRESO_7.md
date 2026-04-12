@@ -54,20 +54,21 @@ MySQL -> Airbyte -> MotherDuck -> dbt -> Metabase, orquestado con Prefect.
 - [ ] Captura de Prefect UI con ejecución exitosa
 
 ### 4. Metabase: Dashboard con >= 5 visualizaciones y >= 2 filtros
-- [ ] Metabase corriendo via Docker con driver DuckDB (`localhost:3000`)
-- [ ] Conexión a MotherDuck configurada en Metabase (database `md:airbyte_curso`, token separado)
-- [ ] Visualización 1: KPIs principales — 4 Number cards (Total Orders, Revenue, Margin, AOV) desde `main_marts.obt_orders_enriched`
-- [ ] Visualización 2: Revenue por Mes — Line/Bar chart desde `main_marts.obt_orders_enriched`
-- [ ] Visualización 3: Conversion por Canal — Table con formato condicional desde `main_marts.fct_channel_performance`
-- [ ] Visualización 4: Revenue por Producto — Pie/Bar chart desde `main_marts.obt_orders_enriched`
-- [ ] Visualización 5: Ventas Diarias — Line chart (últimos 30 días) desde `main_marts.fct_daily_sales`
-- [ ] Filtro 1: Date range (order_month / order_date)
-- [ ] Filtro 2: UTM Source o Device type
-- [ ] Captura del dashboard completo
+- [x] Metabase corriendo via Docker con driver DuckDB (`localhost:3000`)
+- [x] Conexión a MotherDuck configurada en Metabase (database `md:airbyte_curso`, token separado)
+- [x] Visualización 1: KPIs principales — 4 Number cards (Orders, Revenue, Margin, AOV) desde `obt_orders_enriched`
+- [x] Visualización 2: Revenue por Mes — Line chart desde `obt_orders_enriched`
+- [x] Visualización 3: Performance por Canal — Table desde `fct_channel_performance`
+- [x] Visualización 4: Revenue por Producto — Pie chart desde `obt_orders_enriched`
+- [x] Visualización 5: Ventas Diarias — Bar/Line chart desde `fct_daily_sales`
+- [x] Filtro 1: Date range — vinculado a KPIs, Revenue por Mes, Ventas Diarias, Performance por Canal
+- [x] Filtro 2: Utm Source (texto) — vinculado a KPIs, Revenue por Mes, Ventas Diarias, Performance por Canal
+- [x] Captura del dashboard completo
 
 ### 5. Capturas requeridas
-- [ ] `assets/prefect_pipeline_tarea7.png` — Prefect UI con ejecución exitosa
-- [ ] `assets/metabase_dashboard_tarea7.png` — Dashboard completo con visualizaciones
+- [x] `assets/prefect_pipeline_tarea7.png` — Prefect UI con ejecución exitosa
+- [x] `assets/dashboard_maven_fuzzy.png` — Dashboard completo sin filtros
+- [x] `assets/dashboard_maven_fuzzy_filtrado.png` — Dashboard filtrado por fecha y canal
 
 ---
 
@@ -120,8 +121,11 @@ workspaces/maven-fuzzy/
 |---|---|
 | MySQL con Docker (schema + carga CSV) | Listo -- 1,735,166 registros totales en 6 tablas |
 | Airbyte MySQL -> MotherDuck | Listo -- sync completado |
-| dbt modelos staging | Pendiente |
-| dbt modelos mart | Pendiente |
-| Prefect pipeline | Pendiente |
-| Metabase dashboard | Pendiente |
-| Capturas | Pendiente |
+| dbt modelos staging | Listo -- PASS=5 views en maven_fuzzy_staging |
+| dbt modelos mart | Listo -- PASS=4 tables en maven_fuzzy_marts |
+| dbt test | Listo -- PASS=20 |
+| Prefect pipeline | Listo -- flow run completado (Airbyte + dbt run + dbt test) |
+| Metabase Docker + conexión MotherDuck | Listo -- corriendo en puerto 3000 |
+| Metabase dashboard (≥5 viz, ≥2 filtros) | Listo -- 5 viz + 2 filtros (fecha + utm_source), editor visual |
+| Captura Prefect UI | Listo -- assets/prefect_pipeline_tarea7.png |
+| Captura Metabase dashboard | Listo -- assets/dashboard_maven_fuzzy.png + dashboard_maven_fuzzy_filtrado.png |

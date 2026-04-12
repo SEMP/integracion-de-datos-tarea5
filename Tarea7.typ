@@ -360,3 +360,89 @@ El pipeline completó exitosamente con las tres tasks en estado `Completed`:
 )
 
 == Paso 5: Visualización con Metabase
+
+Metabase se levanta como contenedor Docker junto a MySQL y phpMyAdmin en `workspaces/maven-fuzzy/containers/`.
+
+=== Imagen Docker
+
+Se construye una imagen personalizada que combina Metabase con el driver DuckDB de la comunidad, definida en `containers/Dockerfile`:
+
+```dockerfile
+FROM eclipse-temurin:21-jre
+ENV MB_PLUGINS_DIR=/plugins
+RUN mkdir -p ${MB_PLUGINS_DIR} /app
+# Metabase v0.58.8
+ADD https://downloads.metabase.com/v0.58.8/metabase.jar /app/metabase.jar
+# DuckDB driver para Metabase
+ADD https://github.com/motherduckdb/metabase_duckdb_driver/releases/download/1.4.3.1/duckdb.metabase-driver.jar ${MB_PLUGINS_DIR}/
+EXPOSE 3000
+CMD ["java", "-jar", "/app/metabase.jar"]
+```
+
+El servicio `mia-metabase` se agrega al `docker-compose.yaml` existente, referenciando el `Dockerfile` directamente con `build: context: .`. La configuración de Metabase se almacena en MySQL (servicio `mia-mysql`), configurado mediante las variables `MB_DB_*` en el `docker-compose.yaml`.
+
+=== Levantar el servicio
+
+```bash
+cd workspaces/maven-fuzzy/containers
+cp example.env .env
+# Editar .env con las credenciales reales
+
+# Primera vez: construir la imagen
+docker compose build mia-metabase
+
+# Levantar
+docker compose up -d mia-metabase
+```
+
+=== Conexión a MotherDuck
+
+En el setup inicial de Metabase (`localhost:3000/setup`), al agregar la base de datos se selecciona el driver *DuckDB* y se configura:
+
+#table(
+  columns: (auto, 1fr),
+  table.header([*Campo*], [*Valor*]),
+  [Nombre para mostrar], [`Maven-Fuzzy`],
+  [Database file], [`md:airbyte_curso`],
+  [Use DuckDB old\_implicit\_casting option], [activado],
+)
+
+El token de MotherDuck se configura en el campo *MotherDuck Token* que el driver expone como campo separado.
+
+#figure(
+  image("assets/configuracion_metabase_db.png", width: 80%),
+  caption: [Configuración de la conexión DuckDB/MotherDuck en Metabase],
+)
+
+=== Dashboard
+
+El dashboard *Maven Fuzzy Factory* contiene cinco visualizaciones construidas con el editor visual de preguntas de Metabase sobre los modelos marts:
+
+#table(
+  columns: (auto, auto, 1fr),
+  table.header([*\#*], [*Tipo*], [*Descripción*]),
+  [1], [Number],     [KPIs principales: Total Orders, Revenue, Margin, AOV — desde `obt_orders_enriched`],
+  [2], [Line chart], [Revenue y margen por mes — desde `obt_orders_enriched`],
+  [3], [Bar chart],  [Revenue por producto — desde `obt_orders_enriched`],
+  [4], [Table],      [Conversión por canal UTM y device — desde `fct_channel_performance`],
+  [5], [Line chart], [Ventas diarias: órdenes, revenue y tasa de conversión — desde `fct_daily_sales`],
+)
+
+Los filtros se configuran directamente en el dashboard de Metabase y se vinculan a los campos correspondientes de cada card:
+
+#table(
+  columns: (auto, auto, 1fr),
+  table.header([*Filtro*], [*Tipo*], [*Cards vinculadas*]),
+  [Fecha],       [Date Range], [KPIs, Revenue por Mes, Ventas Diarias, Performance por Canal],
+  [Utm Source],  [Text],       [KPIs, Revenue por Mes, Ventas Diarias, Performance por Canal],
+)
+
+#figure(
+  image("assets/dashboard_maven_fuzzy.png", width: 100%),
+  caption: [Dashboard Maven Fuzzy Factory en Metabase — vista completa sin filtros],
+)
+
+#figure(
+  image("assets/dashboard_maven_fuzzy_filtrado.png", width: 100%),
+  caption: [Dashboard filtrado por fecha (12/3/2013 – 11/4/2014) y canal (`direct`)],
+)
